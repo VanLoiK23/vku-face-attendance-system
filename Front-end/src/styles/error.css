@@ -1,0 +1,43 @@
+/* error.css */
+.error-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1a73e8, #34a853);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+  }
+  
+  .error-page h1 {
+    font-size: 120px;
+    margin: 0;
+    font-weight: 800;
+  }
+  
+  .error-page h2 {
+    font-size: 28px;
+    margin: 10px 0;
+  }
+  
+  .error-page p {
+    opacity: 0.9;
+    margin-bottom: 20px;
+  }
+  
+  .error-page a {
+    text-decoration: none;
+    background: white;
+    color: #1a73e8;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  
+  .error-page a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  }

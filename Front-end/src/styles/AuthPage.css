@@ -1,0 +1,178 @@
+/* AuthPage.css */
+:root {
+  --bg-gradient: linear-gradient(135.9deg, rgba(232,240,254,1) 16.4%, rgba(253,253,253,1) 56.1%);
+  --primary-blue: #1a73e8; /* Màu xanh Google Education */
+  --navy: #2c3e50;
+  --text-color: #3c4043;
+  --transition-speed: 0.7s;
+}
+
+.auth-container {
+  background: var(--bg-gradient);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+.auth-card {
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  width: 80%; /* Phóng to 80% cửa sổ */
+  max-width: 1100px;
+  min-height: 650px;
+  transition: all 0.3s ease;
+}
+
+.form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all var(--transition-speed) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.login-container { left: 0; width: 50%; z-index: 2; }
+.register-container { left: 0; width: 50%; opacity: 0; z-index: 1; }
+
+.auth-card.right-panel-active .login-container { transform: translateX(100%); opacity: 0; }
+.auth-card.right-panel-active .register-container {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+}
+
+/* Overlay Styling */
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform var(--transition-speed) ease-in-out;
+  z-index: 100;
+}
+
+.auth-card.right-panel-active .overlay-container { transform: translateX(-100%); }
+
+.overlay {
+  background: var(--primary-blue);
+  background: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+  color: #fff;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform var(--transition-speed) ease-in-out;
+}
+
+.auth-card.right-panel-active .overlay { transform: translateX(50%); }
+
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-direction: column;
+  padding-top: 20px;
+  text-align: center;
+  top: 0;
+  height: 80%;
+  width: 50%;
+  transition: transform var(--transition-speed) ease-in-out;
+}
+
+.overlay-left { transform: translateX(-20%); }
+.auth-card.right-panel-active .overlay-left { transform: translateX(0); }
+.overlay-right { right: 0; transform: translateX(0); }
+.auth-card.right-panel-active .overlay-right { transform: translateX(20%); }
+
+/* Typography */
+h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.auth-img-large {
+  width: 90%; /* Phóng to ảnh minh họa */
+  max-width: 400px;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+  animation: float 4s ease-in-out infinite;
+}
+.auth-img {
+  width: 260px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 50%; /* Biến ảnh thành hình tròn */
+  border: 5px solid rgba(255, 255, 255, 0.3); /* Tạo viền mờ */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  margin-bottom: 20px;
+  
+  /* Hoặc dùng mặt nạ để làm mờ viền ảnh */
+  -webkit-mask-image: radial-gradient(circle, black 60%, transparent 100%);
+  mask-image: radial-gradient(circle, black 60%, transparent 100%);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+form {
+  padding: 0 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+input {
+  background-color: #f8f9fa;
+  border: 1.5px solid #e8eaed;
+  padding: 14px 20px;
+  margin: 10px 0;
+  width: 100%;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  transition: border 0.3s;
+}
+
+input:focus {
+  border-color: var(--primary-blue);
+  outline: none;
+  background-color: #fff;
+}
+
+button {
+  border-radius: 30px;
+  border: none;
+  background-color: var(--primary-blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 15px 60px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(26, 115, 232, 0.3);
+}
+
+button.ghost {
+  background-color: transparent;
+  border: 2px solid #fff;
+}
