@@ -26,23 +26,48 @@ CREATE TABLE teachers (
 );
 
 -- =========================
+-- COHORTS
+-- =========================
+CREATE TABLE cohorts (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+    -- 23AI, 23IT, 23GIT
+);
+
+-- =========================
 -- STUDENTS
 -- =========================
 CREATE TABLE students (
     id SERIAL PRIMARY KEY,
     user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     student_code VARCHAR(50) UNIQUE,
-    name VARCHAR(255) NOT NULL
+    face_status VARCHAR(20) CHECK (face_status IN ('confirm', 'pending', 'reject')) NULL,
+    name VARCHAR(255) NOT NULL,
+    cohort_id INT REFERENCES cohorts(id) ON DELETE SET NULL
 );
 
 -- =========================
--- CLASSES (LỚP HỌC PHẦN)
+-- SUBJECTS (MÔN HỌC)
 -- =========================
-CREATE TABLE classes (
+CREATE TABLE subjects (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    code VARCHAR(50) UNIQUE,
+    credits INT NOT NULL
+);
+
+-- =========================
+-- CLASS_SECTION  (LỚP HỌC PHẦN)
+-- =========================
+CREATE TABLE class_sections (
+    id SERIAL PRIMARY KEY,
+
+    subject_id INT REFERENCES subjects(id) ON DELETE CASCADE,
     teacher_id INT REFERENCES teachers(id),
+
+    name VARCHAR(255) NOT NULL,
     room VARCHAR(50),
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -51,17 +76,20 @@ CREATE TABLE classes (
 -- =========================
 CREATE TABLE enrollments (
     id SERIAL PRIMARY KEY,
+
     student_id INT REFERENCES students(id) ON DELETE CASCADE,
-    class_id INT REFERENCES classes(id) ON DELETE CASCADE,
-    UNIQUE(student_id, class_id)
+    class_section_id INT REFERENCES class_sections(id) ON DELETE CASCADE,
+
+    UNIQUE(student_id, class_section_id)
 );
+
 
 -- =========================
 -- SCHEDULES (LỊCH HỌC)
 -- =========================
 CREATE TABLE schedules (
     id SERIAL PRIMARY KEY,
-    class_id INT REFERENCES classes(id) ON DELETE CASCADE,
+    class_section_id INT REFERENCES class_sections(id) ON DELETE CASCADE,
 
     day_of_week INT CHECK (day_of_week BETWEEN 2 AND 8), -- 2=Mon
     start_period INT,
@@ -107,6 +135,11 @@ CREATE TABLE face_embeddings (
     embedding VECTOR(512),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+ALTER TABLE enrollments 
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- =========================
 -- INDEX (TỐI ƯU)

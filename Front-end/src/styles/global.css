@@ -198,18 +198,18 @@
     font-weight: 600; cursor: pointer; transition: all 0.2s;
     border: none; font-family: inherit;
   }
-  .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(30,64,175,0.3); }
-  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-  .btn-accent { background: var(--accent); color: white; box-shadow: 0 4px 12px rgba(6,182,212,0.3); }
-  .btn-accent:hover { background: #0891b2; }
-  .btn-success { background: var(--success); color: white; }
-  .btn-danger { background: var(--danger); color: white; }
-  .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
-  .btn-outline:hover { background: var(--primary); color: white; }
-  .btn-ghost { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+  .btn-primary { background: var(--primary) !important; color: white !important; box-shadow: 0 4px 12px rgba(30,64,175,0.3) !important; }
+  .btn-primary:hover { background: var(--primary-dark) !important; transform: translateY(-1px) !important; }
+  .btn-accent { background: var(--accent) !important; color: white !important; box-shadow: 0 4px 12px rgba(6,182,212,0.3) !important; }
+  .btn-accent:hover { background: #0891b2 !important; }
+  .btn-success { background: var(--success) !important; color: white !important; }
+  .btn-danger { background: var(--danger) !important; color: white !important; }
+  .btn-outline { background: transparent !important; color: var(--primary) !important; border: 1.5px solid var(--primary) !important; }
+  .btn-outline:hover { background: var(--primary) !important; color: white !important; }
+  .btn-ghost { background: var(--bg) !important; color: var(--text2) !important; border: 1px solid var(--border) !important; }
   .btn-ghost:hover { background: var(--border); }
-  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
-  .btn-lg { padding: 14px 28px; font-size: 15px; border-radius: 12px; }
+  .btn-sm { padding: 6px 12px !important; font-size: 12px !important; border-radius: 8px !important; }
+  .btn-lg { padding: 14px 28px !important; font-size: 15px !important; border-radius: 12px !important; }
 
   /* GRID */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }

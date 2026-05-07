@@ -59,8 +59,6 @@ const AuthPage = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        e.preventDefault();
-
         const emailRegex = /^[a-zA-Z0-9._%+-]+@vku\.udn\.vn$/;
     
         if (!emailRegex.test(loginEmail)) {

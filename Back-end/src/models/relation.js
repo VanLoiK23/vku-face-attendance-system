@@ -1,9 +1,11 @@
 const AttendanceRecord = require("./AttendanceRecord");
 const AttendanceSession = require("./AttendanceSession");
-const Class = require("./class");
+const ClassSection = require("./class_section");
+const Cohort = require("./cohort");
 const FaceEmbedding = require("./FaceEmbedding");
 const Schedule = require("./schedule");
 const Student = require("./student");
+const Subject = require("./subject");
 const Teacher = require("./teacher");
 const User = require("./user");
 
@@ -21,30 +23,48 @@ Student.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 // ================= CLASS =================
 
 // Teacher - Class
-Teacher.hasMany(Class, { foreignKey: 'teacher_id', as: 'classes' });
-Class.belongsTo(Teacher, { foreignKey: 'teacher_id', as: 'teacher' });
+// Teacher.hasMany(Class, { foreignKey: 'teacher_id', as: 'classes' });
+// Class.belongsTo(Teacher, { foreignKey: 'teacher_id', as: 'teacher' });
+Teacher.hasMany(ClassSection, { foreignKey: 'teacher_id', as: 'sections' });
+ClassSection.belongsTo(Teacher, { foreignKey: 'teacher_id', as: 'teacher' });
 
 // Student - Class (Many-to-Many)
-Student.belongsToMany(Class, {
+// Student.belongsToMany(Class, {
+//     through: 'enrollments',
+//     foreignKey: 'student_id',
+//     otherKey: 'class_id',
+//     as: 'classes'
+// });
+
+// Class.belongsToMany(Student, {
+//     through: 'enrollments',
+//     foreignKey: 'class_id',
+//     otherKey: 'student_id',
+//     as: 'students'
+// });
+Student.belongsToMany(ClassSection, {
     through: 'enrollments',
     foreignKey: 'student_id',
-    otherKey: 'class_id',
-    as: 'classes'
+    otherKey: 'class_section_id',
+    as: 'classSections'
 });
 
-Class.belongsToMany(Student, {
+ClassSection.belongsToMany(Student, {
     through: 'enrollments',
-    foreignKey: 'class_id',
+    foreignKey: 'class_section_id',
     otherKey: 'student_id',
     as: 'students'
 });
 
 
+Cohort.hasMany(Student, { foreignKey: 'cohort_id', as: 'students' });
+Student.belongsTo(Cohort, { foreignKey: 'cohort_id', as: 'cohort' });
+
 // ================= SCHEDULE =================
 
 // Class - Schedule
-Class.hasMany(Schedule, { foreignKey: 'class_id', as: 'schedules' });
-Schedule.belongsTo(Class, { foreignKey: 'class_id', as: 'class' });
+ClassSection.hasMany(Schedule, { foreignKey: 'class_section_id', as: 'schedules' });
+Schedule.belongsTo(ClassSection, { foreignKey: 'class_section_id', as: 'classSection' });
 
 // Schedule - Session
 Schedule.hasMany(AttendanceSession, { foreignKey: 'schedule_id', as: 'sessions' });
@@ -67,3 +87,7 @@ AttendanceRecord.belongsTo(Student, { foreignKey: 'student_id', as: 'student' })
 // Student - Embedding
 Student.hasMany(FaceEmbedding, { foreignKey: 'student_id', as: 'embeddings' });
 FaceEmbedding.belongsTo(Student, { foreignKey: 'student_id', as: 'student' });
+
+
+Subject.hasMany(ClassSection, { foreignKey: 'subject_id', as: 'sections' });
+ClassSection.belongsTo(Subject, { foreignKey: 'subject_id', as: 'subject' });
