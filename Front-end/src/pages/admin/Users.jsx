@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import instance from "../../utils/axios.customize";
 import {
   Avatar,
@@ -9,11 +9,13 @@ import {
   StatusBadge,
 } from "../../helper/helper";
 import { toast } from "react-toastify";
+import "../../styles/pagination.css";
 
 const UsersPage = () => {
   const [tab, setTab] = useState("students");
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setEdit] = useState(false);
+  const [oldEmail, setOldEmail] = useState(false);
 
   const [students, setStudents] = useState([]);
   const [cohorts, setCohorts] = useState([]);
@@ -99,15 +101,16 @@ const UsersPage = () => {
   const handleCreate = async (e) => {
     try {
       e.preventDefault();
-  
+
       const emailRegex = /^[a-zA-Z0-9._%+-]+@vku\.udn\.vn$/;
-      const currentEmail = tab === "students" ? studentForm.email : teacherForm.email;
-  
+      const currentEmail =
+        tab === "students" ? studentForm.email : teacherForm.email;
+
       if (!emailRegex.test(currentEmail)) {
         toast.error("Email phải đúng định dạng @vku.udn.vn");
         return;
       }
-  
+
       let formData = {};
       if (tab === "students") {
         formData = {
@@ -124,39 +127,110 @@ const UsersPage = () => {
           role: "teacher",
         };
       }
-  
+
       let res;
       const baseEndpoint = "/" + tab;
-  
+
       if (isEdit) {
         const targetId = tab === "students" ? studentForm.id : teacherForm.id;
-        const userId = tab === "students" ? studentForm.user_id : teacherForm.user_id;
-  
-        const updateData = { ...formData, userId }; 
-  
+        const userId =
+          tab === "students" ? studentForm.user_id : teacherForm.user_id;
+
+        const updateData = { ...formData, userId, oldEmail };
+
         res = await instance.put(`${baseEndpoint}/${targetId}`, updateData);
       } else {
         res = await instance.post(baseEndpoint, formData);
       }
-  
+
       if (res && res.data) {
         setShowModal(false);
-  
-        const resetStudent = { name: "", email: "", studentCode: "", cohortId: "" };
+
+        const resetStudent = {
+          name: "",
+          email: "",
+          studentCode: "",
+          cohortId: "",
+        };
         const resetTeacher = { name: "", email: "", department: "CNTT" };
         setStudentForm(resetStudent);
         setTeacherForm(resetTeacher);
-  
-        toast.success(res.data.message || (isEdit ? "Cập nhật thành công!" : "Tạo mới thành công!"));
-  
+
+        toast.success(
+          res.data.message ||
+            (isEdit ? "Cập nhật thành công!" : "Tạo mới thành công!")
+        );
+
         tab === "students" ? fetchStudents() : fetchTeachers();
       }
     } catch (err) {
       console.error("FULL ERROR:", err);
-      const message = err.response?.data?.message || err.message || "Lỗi server, vui lòng thử lại";
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Lỗi server, vui lòng thử lại";
       toast.error(message);
     }
   };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
+    try {
+      await instance.delete(`/${tab}/${id}`);
+
+      toast.success("Xóa người dùng thành công!");
+
+      tab === "students" ? fetchStudents() : fetchTeachers();
+    } catch (err) {
+      alert("Lỗi khi xóa!");
+    }
+  };
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredData = useMemo(() => {
+    const sourceData = tab === "students" ? students : teachers;
+
+    if (!searchTerm.trim()) return sourceData;
+
+    const keyword = searchTerm.toLowerCase();
+
+    return sourceData.filter((item) => {
+      const matchName = (item.name || "").toLowerCase().includes(keyword);
+      const matchEmail = (item.email || "").toLowerCase().includes(keyword);
+
+      if (tab === "students") {
+        const matchCode = (item.studentCode || "")
+          .toLowerCase()
+          .includes(keyword);
+        return matchName || matchEmail || matchCode;
+      } else {
+        const matchDept = (item.department || "")
+          .toLowerCase()
+          .includes(keyword);
+        return matchName || matchEmail || matchDept;
+      }
+    });
+  }, [students, teachers, searchTerm, tab]);
+
+  useEffect(() => {
+    setSearchTerm("");
+  }, [tab]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredData, currentPage]);
+
+  // Reset về trang 1 khi người dùng gõ tìm kiếm hoặc đổi Tab
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, tab]);
 
   return (
     <div>
@@ -180,6 +254,7 @@ const UsersPage = () => {
             className="form-input"
             style={{ width: 220 }}
             placeholder="🔍 Tìm kiếm..."
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button
             onClick={() => {
@@ -213,7 +288,7 @@ const UsersPage = () => {
               </thead>
 
               <tbody>
-                {students.map((s) => (
+                {paginatedData.map((s) => (
                   <tr key={s.id}>
                     <td>
                       <div
@@ -241,7 +316,7 @@ const UsersPage = () => {
                     </td>
 
                     <td>
-                      <Badge type="blue">{s.class_name}</Badge>
+                      <Badge type="blue">{s.cohort}</Badge>
                     </td>
 
                     <td>{s.email}</td>
@@ -282,16 +357,103 @@ const UsersPage = () => {
                             id: s.id,
                             user_id: s.user_id,
                           });
+
+                          setOldEmail(s.email);
                         }}
                       >
                         ✏️
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          handleDelete(s.user_id);
+                        }}
+                      >
                         🗑️
                       </Button>
                     </td>
                   </tr>
                 ))}
+
+                <div
+                  style={{
+                    marginTop: 30,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "0 10px",
+                  }}
+                >
+                  <div style={{ color: "var(--text3)", fontSize: 14 }}>
+                    Hiển thị <b>{paginatedData.length}</b> trên{" "}
+                    <b>{filteredData.length}</b> kết quả
+                  </div>
+
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((prev) => prev - 1)}
+                      className="pagination-btn"
+                    >
+                      ⟨
+                    </button>
+
+                    {[...Array(totalPages)].map((_, index) => {
+                      const pageNumber = index + 1;
+                      if (
+                        pageNumber === 1 ||
+                        pageNumber === totalPages ||
+                        (pageNumber >= currentPage - 1 &&
+                          pageNumber <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={pageNumber}
+                            onClick={() => setCurrentPage(pageNumber)}
+                            style={{
+                              padding: "8px 14px",
+                              borderRadius: 8,
+                              border: "none",
+                              cursor: "pointer",
+                              fontWeight: 700,
+                              backgroundColor:
+                                currentPage === pageNumber
+                                  ? "var(--primary)"
+                                  : "var(--bg)",
+                              color:
+                                currentPage === pageNumber
+                                  ? "#fff"
+                                  : "var(--text2)",
+                              transition: "0.2s",
+                            }}
+                          >
+                            {pageNumber}
+                          </button>
+                        );
+                      }
+                      if (
+                        pageNumber === currentPage - 2 ||
+                        pageNumber === currentPage + 2
+                      ) {
+                        return (
+                          <span key={pageNumber} style={{ padding: "0 5px" }}>
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
+
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((prev) => prev + 1)}
+                      className="pagination-btn"
+                    >
+                      ⟩
+                    </button>
+                  </div>
+                </div>
               </tbody>
             </table>
           </div>
@@ -314,7 +476,7 @@ const UsersPage = () => {
               </thead>
 
               <tbody>
-                {teachers.map((t) => (
+                {paginatedData.map((t) => (
                   <tr key={t.id}>
                     <td>
                       <div
@@ -329,13 +491,13 @@ const UsersPage = () => {
                       </div>
                     </td>
 
-                    <td>{t.email}</td>
+                    <td>{t.user.email}</td>
 
                     <td>
                       <Badge type="cyan">CNTT</Badge>
                     </td>
 
-                    <td>{t.courseCount} lớp</td>
+                    <td>{t.classSectionCount} lớp</td>
 
                     <td>
                       <Button
@@ -347,21 +509,107 @@ const UsersPage = () => {
 
                           setTeacherForm({
                             name: t.name,
-                            email: t.email,
+                            email: t.user.email,
                             department: "CNTT",
                             id: t.id,
                             user_id: t.user.id,
                           });
+
+                          setOldEmail(t.user.email);
                         }}
                       >
                         ✏️
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          handleDelete(t.user.id);
+                        }}
+                      >
                         🗑️
                       </Button>
                     </td>
                   </tr>
                 ))}
+                <div
+                  style={{
+                    marginTop: 30,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "0 10px",
+                  }}
+                >
+                  <div style={{ color: "var(--text3)", fontSize: 14 }}>
+                    Hiển thị <b>{paginatedData.length}</b> trên{" "}
+                    <b>{filteredData.length}</b> kết quả
+                  </div>
+
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((prev) => prev - 1)}
+                      className="pagination-btn"
+                    >
+                      ⟨
+                    </button>
+
+                    {[...Array(totalPages)].map((_, index) => {
+                      const pageNumber = index + 1;
+                      if (
+                        pageNumber === 1 ||
+                        pageNumber === totalPages ||
+                        (pageNumber >= currentPage - 1 &&
+                          pageNumber <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={pageNumber}
+                            onClick={() => setCurrentPage(pageNumber)}
+                            style={{
+                              padding: "8px 14px",
+                              borderRadius: 8,
+                              border: "none",
+                              cursor: "pointer",
+                              fontWeight: 700,
+                              backgroundColor:
+                                currentPage === pageNumber
+                                  ? "var(--primary)"
+                                  : "var(--bg)",
+                              color:
+                                currentPage === pageNumber
+                                  ? "#fff"
+                                  : "var(--text2)",
+                              transition: "0.2s",
+                            }}
+                          >
+                            {pageNumber}
+                          </button>
+                        );
+                      }
+                      if (
+                        pageNumber === currentPage - 2 ||
+                        pageNumber === currentPage + 2
+                      ) {
+                        return (
+                          <span key={pageNumber} style={{ padding: "0 5px" }}>
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
+
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((prev) => prev + 1)}
+                      className="pagination-btn"
+                    >
+                      ⟩
+                    </button>
+                  </div>
+                </div>
               </tbody>
             </table>
           </div>
@@ -431,6 +679,7 @@ const UsersPage = () => {
             <div className="form-group">
               <label className="form-label">Lớp</label>
               <select
+                required
                 className="form-input form-select"
                 value={studentForm.cohortId}
                 onChange={(e) =>

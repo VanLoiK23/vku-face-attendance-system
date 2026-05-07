@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const {login,register,forgot_password,reset_password} = require('../controllers/authController');
-const { getAllUser,getAllStudent, getAllTeacher } = require('../controllers/admin/userController');
+const { getAllUser,getAllStudent, getAllTeacher,createNewAccount,updateAccount, deleteAccount } = require('../controllers/admin/userController');
 const {getSubjects,createSubject,updateSubject,deleteSubject} = require('../controllers/admin/subjectController')
 const {getClassSection,createClassSection,updateClassSection,deleteClassSection} = require('../controllers/admin/classSectionController')
 const cohortController = require('../controllers/admin/cohortController');
+const {getAllSchedules,createSchedule,updateSchedule,deleteSchedule} = require('../controllers/admin/scheduleController')
 // const {auth,authIsAdmin} = require('../middlewares/auth')
 const authMiddleware = require('../middlewares/authMiddleware');
 const enrollmentController = require('../controllers/admin/enrollmentController');
@@ -44,6 +45,13 @@ router.get('/cohorts/:id/students', cohortController.getStudents);
 router.post('/cohorts/:cohortId/students', cohortController.assignStudents);
 router.delete('/cohorts/:cohortId/students/:sid', cohortController.removeStudent);
 
+// Schedule Management
+router.get('/schedules', getAllSchedules);
+router.post('/schedules', createSchedule);
+router.put('/schedules/:id', updateSchedule);
+router.delete('/schedules/:id', deleteSchedule);
+
+
 //check already login
 router.get('/auth/account',authMiddleware,(req, res) => {
     return res.json({
@@ -55,5 +63,11 @@ router.get('/auth/account',authMiddleware,(req, res) => {
 router.get('/user',getAllUser)
 router.get('/students',getAllStudent)
 router.get('/teachers',getAllTeacher)
+router.post('/students',createNewAccount)
+router.post('/teachers',createNewAccount)
+router.put('/students/:id',updateAccount)
+router.put('/teachers/:id',updateAccount)
+router.delete('/students/:id',deleteAccount)
+router.delete('/teachers/:id',deleteAccount)
 
 module.exports = router;

@@ -24,7 +24,7 @@ const teacherService = {
         {
           model: User,
           as: "user",
-          attributes: ["email", "role","id"],
+          attributes: ["email", "role", "id"],
         },
 
         {
@@ -67,10 +67,14 @@ const teacherService = {
     });
   },
 
-  update: async (id, data) => {
-    return await Teacher.update(data, {
-      where: { id },
-    });
+  update: async (id, data, t) => {
+    return await Teacher.update(
+      data,
+      {
+        where: { id },
+      },
+      { transaction: t }
+    );
   },
 
   delete: async (id) => {

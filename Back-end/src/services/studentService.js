@@ -139,10 +139,14 @@ const studentService = {
     });
   },
 
-  update: async (id, updateData) => {
-    return await Student.update(updateData, {
-      where: { id },
-    });
+  update: async (id, updateData, t) => {
+    return await Student.update(
+      updateData,
+      {
+        where: { id },
+      },
+      { transaction: t }
+    );
   },
 
   delete: async (id) => {
