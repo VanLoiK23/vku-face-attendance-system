@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import instance from "../../utils/axios.customize";
 import { Avatar, Button, Modal } from "../../helper/helper";
+import { toast } from "react-toastify";
 
 const ClassesPage = () => {
   const [classSections, setClassSections] = useState([]);
@@ -70,9 +71,12 @@ const ClassesPage = () => {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm("Xóa lớp học này sẽ mất sạch dữ liệu điểm danh liên quan. Bạn chắc chứ?")) return;
+    if (!window.confirm("Xóa lớp học phần này sẽ mất sạch dữ liệu điểm danh liên quan. Bạn chắc chứ?")) return;
     try {
       await instance.delete(`/class-sections/${id}`);
+
+      toast.success("Xóa lớp học phần thành công!");
+
       fetchData();
     } catch (err) { alert("Không thể xóa lớp!"); }
   };
