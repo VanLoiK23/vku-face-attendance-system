@@ -83,6 +83,16 @@ CREATE TABLE enrollments (
     UNIQUE(student_id, class_section_id)
 );
 
+-- =========================
+-- SEMESTERS (HỌC KÌ)
+-- =========================
+CREATE TABLE semesters (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100), -- Ví dụ: Học kỳ 2 - 2025-2026
+    start_date DATE NOT NULL, -- Ngày Thứ 2 của Tuần 1
+    end_date DATE,
+    is_active BOOLEAN DEFAULT false -- Học kỳ hiện tại đang diễn ra
+);
 
 -- =========================
 -- SCHEDULES (LỊCH HỌC)
@@ -90,6 +100,7 @@ CREATE TABLE enrollments (
 CREATE TABLE schedules (
     id SERIAL PRIMARY KEY,
     class_section_id INT REFERENCES class_sections(id) ON DELETE CASCADE,
+    semester_id INT REFERENCES semesters(id),
 
     day_of_week INT CHECK (day_of_week BETWEEN 2 AND 8), -- 2=Mon
     start_period INT,
