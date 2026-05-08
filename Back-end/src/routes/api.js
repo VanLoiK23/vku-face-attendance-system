@@ -4,7 +4,7 @@ const {login,register,forgot_password,reset_password} = require('../controllers/
 const { getAllUser } = require('../controllers/userController');
 // const {auth,authIsAdmin} = require('../middlewares/auth')
 const authMiddleware = require('../middlewares/authMiddleware')
-
+const {getDashboard} = require('../controllers/studentDashboard');
 //apply middleware for all
 // router.use([auth]);
 
@@ -21,5 +21,10 @@ router.get('/auth/account',authMiddleware,(req, res) => {
 
 //user
 router.get('/user',getAllUser)
-
+//student
+router.get(
+    '/dashboard',
+    // authMiddleware,
+    getDashboard
+);
 module.exports = router;
