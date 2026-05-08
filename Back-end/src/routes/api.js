@@ -13,6 +13,8 @@ const {getDashboard} = require('../controllers/studentDashboardController');
 
 const enrollmentController = require('../controllers/admin/enrollmentController');
 const { getMyAttendance } = require("../controllers/studentAttendanceCotrnoller");
+const { getWeekSchedule } = require("../controllers/WeeklyScheduleController");
+const { getTodaySchedule } = require("../controllers/ScheduleTodayController");
 
 //apply middleware for all
 // router.use([auth]);
@@ -73,7 +75,13 @@ router.get(
     getDashboard
 );
 router.get("/student/attendance", authMiddleware, getMyAttendance);
+router.get("/schedule/week",
+    //  authMiddleware,
+      getWeekSchedule);
 
+router.get("/schedule/today",
+     //authMiddleware, 
+     getTodaySchedule);
 router.get('/students',getAllStudent)
 router.get('/teachers',getAllTeacher)
 router.post('/students',createNewAccount)
