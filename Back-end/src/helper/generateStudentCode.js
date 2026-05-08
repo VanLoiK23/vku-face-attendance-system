@@ -2,23 +2,32 @@ const { Op } = require('sequelize');
 const Student = require('../models/student');
 
 const generateStudentCode = async () => {
-    // const currentYear = new Date().getFullYear().toString().slice(-2); // EX: 2026 -> "26"
     const currentYear = 23;
-    const prefix = `${currentYear}IT`; 
+    const prefix = `${currentYear}IT`;
 
     const lastStudent = await Student.findOne({
         where: {
-            student_code: { [Op.like]: `${prefix}%` }
+            student_code: {
+                [Op.like]: `${prefix}%`
+            }
         },
         order: [['student_code', 'DESC']]
     });
 
-    if (!lastStudent) return `${prefix}001`;
+    // chưa có sinh viên
+    if (!lastStudent || !lastStudent.student_code) {
+        return `${prefix}001`;
+    }
 
-    const lastNumber = parseInt(lastStudent.student_code.slice(-3));
-    const nextNumber = (lastNumber + 1).toString().padStart(3, '0');
+    const lastNumber = parseInt(
+        lastStudent.student_code.slice(-3)
+    );
+
+    const nextNumber = (lastNumber + 1)
+        .toString()
+        .padStart(3, '0');
 
     return `${prefix}${nextNumber}`;
 };
 
-module.exports = generateStudentCode
+module.exports = generateStudentCode;
