@@ -1,4 +1,4 @@
-const todayScheduleService = require("../services/ScheduleTodayService");
+const todayScheduleService = require("../../services/ScheduleTodayService");
 
 const getTodaySchedule = async (req, res) => {
   try {

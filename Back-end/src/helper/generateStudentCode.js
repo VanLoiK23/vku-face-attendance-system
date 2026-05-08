@@ -7,20 +7,20 @@ const generateStudentCode = async () => {
 
     const lastStudent = await Student.findOne({
         where: {
-            student_code: {
+            studentCode: {
                 [Op.like]: `${prefix}%`
             }
         },
-        order: [['student_code', 'DESC']]
+        order: [['studentCode', 'DESC']]
     });
 
     // chưa có sinh viên
-    if (!lastStudent || !lastStudent.student_code) {
+    if (!lastStudent || !lastStudent.studentCode) {
         return `${prefix}001`;
     }
 
     const lastNumber = parseInt(
-        lastStudent.student_code.slice(-3)
+        lastStudent.studentCode.slice(-3)
     );
 
     const nextNumber = (lastNumber + 1)

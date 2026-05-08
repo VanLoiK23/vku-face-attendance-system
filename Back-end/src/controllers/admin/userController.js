@@ -1,8 +1,11 @@
+require("dotenv").config();
 const { sequelize } = require("../../config/database");
 const User = require("../../models/user");
-const { studentService } = require("../../services/studentService");
+const studentService = require("../../services/studentService");
 const teacherService = require("../../services/teacherService");
 const userService = require("../../services/userService");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const getAllUser = async (req, res) => {
   try {
@@ -44,7 +47,7 @@ const createNewAccount = async (req, res) => {
   try {
     const account = req.body;
 
-    const password = '123456'; //default
+    const password = "123456"; //default
 
     const vkuEmailRegex = /^[a-zA-Z0-9._%+-]+@vku\.udn\.vn$/;
 
@@ -57,7 +60,7 @@ const createNewAccount = async (req, res) => {
       });
     }
 
-    const exist = await User.findOne({ where: { email }, transaction: t })
+    const exist = await User.findOne({ where: { email }, transaction: t });
 
     if (exist) {
       return res.status(400).json({
@@ -77,7 +80,7 @@ const createNewAccount = async (req, res) => {
         },
         t
       );
-    } else{
+    } else {
       await teacherService.create(
         {
           user_id: newUser.id,
@@ -127,7 +130,7 @@ const updateAccount = async (req, res) => {
         });
       }
 
-      const exist = await User.findOne({ where: { email }, transaction: t })
+      const exist = await User.findOne({ where: { email }, transaction: t });
 
       if (exist) {
         return res.status(400).json({
@@ -140,7 +143,7 @@ const updateAccount = async (req, res) => {
 
     if (account.role === "student") {
       await studentService.update(id, account, t);
-    } else{
+    } else {
       await teacherService.update(id, account, t);
     }
 
@@ -168,24 +171,24 @@ const updateAccount = async (req, res) => {
   }
 };
 
-
 const deleteAccount = async (req, res) => {
-    try {
-        const { id } = req.params; 
+  try {
+    const { id } = req.params;
 
-        const deletedCount = await userService.delete(id);
+    const deletedCount = await userService.delete(id);
 
-        if (deletedCount === 0) {
-            return res.status(404).json({ message: "Không tìm thấy tài khoản để xóa!" });
-        }
-
-        return res.status(200).json({ message: "Xóa tài khoản thành công!" });
-
-    } catch (error) {
-        console.error("Lỗi xóa tài khoản:", error);
-        return res.status(500).json({ message: "Lỗi hệ thống, thử lại sau!" });
+    if (deletedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy tài khoản để xóa!" });
     }
-}
+
+    return res.status(200).json({ message: "Xóa tài khoản thành công!" });
+  } catch (error) {
+    console.error("Lỗi xóa tài khoản:", error);
+    return res.status(500).json({ message: "Lỗi hệ thống, thử lại sau!" });
+  }
+};
 
 const getAllTeacher = async (req, res) => {
   try {
@@ -200,11 +203,77 @@ const getAllTeacher = async (req, res) => {
   }
 };
 
+//profile page all role
+const updateProfile = async (req, res) => {
+  try {
+    const { iat, exp, ...payloadData } = req.user;
+    const { name } = req.body;
+
+    if (payloadData.role === "student") {
+      await studentService.update(payloadData.accountId, { name });
+    } else {
+      await teacherService.update(payloadData.accountId, { name });
+    }
+
+    //change access_token to change info side front-end
+    const payload = {
+      ...payloadData,
+      name,
+    };
+
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRE,
+    });
+
+    return res.status(200).json({
+      message: "Update name account success!",
+      access_token: accessToken,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Error System. Please try again later !" });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const user = req.user;
+    const { currentPassword, newPassword } = req.body;
+
+    const userExist = await userService.getById(user.id);
+
+    if (!userExist) {
+      return res.status(404).json({ message: "Người dùng không tồn tại!" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, userExist.password);
+
+    if (isMatch) {
+      await userService.update(userExist.id, { password: newPassword });
+
+      return res.status(200).json({ message: "Đổi mật khẩu thành công!" });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Mật khẩu hiện tại không chính xác!" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Lỗi hệ thống. Vui lòng thử lại sau!" });
+  }
+};
+
 module.exports = {
   getAllUser,
   getAllStudent,
   getAllTeacher,
   createNewAccount,
   updateAccount,
-  deleteAccount
+  deleteAccount,
+  updateProfile,
+  changePassword,
 };

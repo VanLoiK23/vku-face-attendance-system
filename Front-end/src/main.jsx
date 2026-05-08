@@ -1,16 +1,17 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/ReactToastify.css';
-import { createBrowserRouter, Navigate, Outlet, RouterProvider } from "react-router-dom";
+import { createBrowserRouter,Outlet, RouterProvider } from "react-router-dom";
 import App from './App.jsx'
-import { AuthContext, AuthWrapper } from './components/context/auth.context.jsx';
+import { AuthWrapper } from './components/context/auth.context.jsx';
 import AuthPage from "./pages/auth/AuthPage"
 import ForgotPassword from "./pages/auth/ForgotPassword"
 
 import AdminDashboard from "./pages/admin/Dashboard";
 import UsersPage from "./pages/admin/Users";
 import ClassesPage from "./pages/admin/Classes";
+import SemesterPage from "./pages/admin/SemesterPage"
 import SchedulePage from "./pages/admin/Schedules";
 import FaceApprovalPage from "./pages/admin/Face_Approval";
 import ReportsPage from "./pages/admin/Reports";
@@ -60,6 +61,7 @@ const router = createBrowserRouter([
           { path: "cohorts", element: <CohortManagement /> },
           { path: "subjects", element: <SubjectsPage /> },
           { path: "classes", element: <ClassesPage /> },
+          { path: "semester", element: <SemesterPage /> },
           { path: "schedule", element: <SchedulePage /> },
           { path: "face-approval", element: <FaceApprovalPage /> },
           { path: "reports", element: <ReportsPage /> },

@@ -1,4 +1,4 @@
-const studentDashboardService = require('../services/studentDashboardService');
+const studentDashboardService = require('../../services/studentDashboardService');
 
 const getDashboard = async (req, res) => {
     try {
