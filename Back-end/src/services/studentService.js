@@ -116,6 +116,14 @@ const studentService = {
     });
   },
 
+  getByUserId: async (userId) => {
+    return await Student.findOne({
+      where: {
+        user_id: userId
+      }
+    });
+  },
+
   getById: async (id) => {
     return await Student.findByPk(id, {
       include: [
@@ -144,8 +152,8 @@ const studentService = {
       updateData,
       {
         where: { id },
-      },
-      { transaction: t }
+        transaction: t 
+      }
     );
   },
 

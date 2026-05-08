@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {login,register,forgot_password,reset_password} = require('../controllers/authController');
-const { getAllUser,getAllStudent, getAllTeacher,createNewAccount,updateAccount, deleteAccount } = require('../controllers/admin/userController');
+const { getAllUser,getAllStudent, getAllTeacher,createNewAccount,updateAccount, deleteAccount, changePassword, updateProfile } = require('../controllers/admin/userController');
 const {getSubjects,createSubject,updateSubject,deleteSubject} = require('../controllers/admin/subjectController')
 const {getClassSection,createClassSection,updateClassSection,deleteClassSection} = require('../controllers/admin/classSectionController')
 const cohortController = require('../controllers/admin/cohortController');
@@ -9,13 +9,13 @@ const {getAllSchedules,createSchedule,updateSchedule,deleteSchedule} = require('
 // const {auth,authIsAdmin} = require('../middlewares/auth')
 
 const authMiddleware = require('../middlewares/authMiddleware')
-const {getDashboard} = require('../controllers/studentDashboardController');
+const {getDashboard} = require('../controllers/student/studentDashboardController');
 
 const enrollmentController = require('../controllers/admin/enrollmentController');
 const semesterController = require('../controllers/admin/semesterController');
-const { getMyAttendance } = require("../controllers/studentAttendanceCotrnoller");
-const { getWeekSchedule } = require("../controllers/WeeklyScheduleController");
-const { getTodaySchedule } = require("../controllers/ScheduleTodayController");
+const { getMyAttendance } = require("../controllers/student/studentAttendanceController");
+const { getWeekSchedule } = require("../controllers/student/WeeklyScheduleController");
+const { getTodaySchedule } = require("../controllers/student/ScheduleTodayController");
 
 //apply middleware for all
 // router.use([auth]);
@@ -66,6 +66,20 @@ router.post('/semesters', semesterController.createSemester);
 router.put('/semesters/:id', semesterController.updateSemester);
 router.delete('/semesters/:id', semesterController.deleteSemester);
 
+//Account
+router.get('/students',getAllStudent)
+router.get('/teachers',getAllTeacher)
+router.post('/students',createNewAccount)
+router.post('/teachers',createNewAccount)
+router.put('/students/:id',updateAccount)
+router.put('/teachers/:id',updateAccount)
+router.delete('/students/:id',deleteAccount)
+router.delete('/teachers/:id',deleteAccount)
+
+//profile
+router.put('/users/profile',authMiddleware,updateProfile)
+router.put('/users/change-password',authMiddleware,changePassword)
+
 //check already login
 router.get('/auth/account',authMiddleware,(req, res) => {
     return res.json({
@@ -90,14 +104,6 @@ router.get("/schedule/week",
 router.get("/schedule/today",
      //authMiddleware, 
      getTodaySchedule);
-router.get('/students',getAllStudent)
-router.get('/teachers',getAllTeacher)
-router.post('/students',createNewAccount)
-router.post('/teachers',createNewAccount)
-router.put('/students/:id',updateAccount)
-router.put('/teachers/:id',updateAccount)
-router.delete('/students/:id',deleteAccount)
-router.delete('/teachers/:id',deleteAccount)
 
 
 module.exports = router;

@@ -72,9 +72,17 @@ const teacherService = {
       data,
       {
         where: { id },
-      },
-      { transaction: t }
+        transaction: t 
+      }
     );
+  },
+
+  getByUserId: async (userId) => {
+    return await Teacher.findOne({
+      where: {
+        user_id: userId
+      }
+    });
   },
 
   delete: async (id) => {

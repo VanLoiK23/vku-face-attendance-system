@@ -18,7 +18,7 @@ export default function App() {
     localStorage.removeItem("access_token");
     setAuth({
         isAuthenticated: false,
-        user: { email: "", name: "", role: "", avatar: "" }
+        user: { email: "", name: "", role: "", avatar: "", studentId: ""}
     });
     navigate("/auth"); 
   };

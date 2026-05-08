@@ -11,6 +11,7 @@ const navConfig = {
       { id: "cohorts", icon: "📋", label: "Danh mục Lớp khóa" },
       { id: "subjects", icon: "📖", label: "Quản lý Môn học" },
       { id: "classes", icon: "🥞", label: "Lớp học phần" },
+      { id: "semester", icon: "🎓", label: "Học kỳ đào tạo" },
       { id: "schedule", icon: "📅", label: "Lịch học" },
       { id: "face-approval", icon: "🤖", label: "Duyệt ảnh AI", badge: 2 },
     ]},

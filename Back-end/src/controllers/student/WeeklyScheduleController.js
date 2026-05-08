@@ -1,4 +1,4 @@
-const scheduleService = require("../services/WeeklyScheduleService");
+const scheduleService = require("../../services/WeeklyScheduleService");
 
 const getWeekSchedule = async (req, res) => {
   try {
