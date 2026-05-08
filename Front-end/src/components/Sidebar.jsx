@@ -8,7 +8,9 @@ const navConfig = {
     ]},
     { section: "Quản lý", items: [
       { id: "users", icon: "👥", label: "Người dùng" },
-      { id: "classes", icon: "🏫", label: "Lớp học" },
+      { id: "cohorts", icon: "📋", label: "Danh mục Lớp khóa" },
+      { id: "subjects", icon: "📖", label: "Quản lý Môn học" },
+      { id: "classes", icon: "🥞", label: "Lớp học phần" },
       { id: "schedule", icon: "📅", label: "Lịch học" },
       { id: "face-approval", icon: "🤖", label: "Duyệt ảnh AI", badge: 2 },
     ]},

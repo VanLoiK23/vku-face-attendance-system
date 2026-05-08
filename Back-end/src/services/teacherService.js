@@ -1,20 +1,87 @@
-const Teacher = require('../models/teacher');
-const User = require('../models/user');
+const Teacher = require("../models/teacher");
+const User = require("../models/user");
+const ClassSection = require("../models/class_section");
+
+const { fn, col } = require("sequelize");
 
 const teacherService = {
-    create: async (data,t) => await Teacher.create(data, { transaction: t }),
-    
-    getAll: async () => await Teacher.findAll({
-        include: [{ model: User, attributes: ['email', 'role'] }]
-    }),
+  create: async (data, t) => {
+    return await Teacher.create(data, {
+      transaction: t,
+    });
+  },
 
-    getById: async (id) => await Teacher.findByPk(id, {
-        include: [{ model: User, attributes: ['email'] }]
-    }),
+  getAll: async () => {
+    return await Teacher.findAll({
+      attributes: [
+        "id",
+        "name",
 
-    update: async (id, data) => await Teacher.update(data, { where: { id } }),
-    
-    delete: async (id) => await Teacher.destroy({ where: { id } })
+        [fn("COUNT", col("sections.id")), "classSectionCount"],
+      ],
+
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["email", "role", "id"],
+        },
+
+        {
+          model: ClassSection,
+          as: "sections",
+          attributes: [],
+        },
+      ],
+
+      group: ["Teacher.id", "user.id"],
+
+      order: [["id", "ASC"]],
+    });
+  },
+
+  getById: async (id) => {
+    return await Teacher.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["email"],
+        },
+
+        {
+          model: ClassSection,
+          as: "sections",
+
+          attributes: ["id", "name", "room"],
+
+          include: [
+            {
+              model: Subject,
+              as: "subject",
+              attributes: ["id", "name", "code"],
+            },
+          ],
+        },
+      ],
+    });
+  },
+
+  update: async (id, data, t) => {
+    return await Teacher.update(
+      data,
+      {
+        where: { id },
+      },
+      { transaction: t }
+    );
+  },
+
+  delete: async (id) => {
+    return await Teacher.destroy({
+      where: { id },
+    });
+  },
 };
 
 module.exports = teacherService;

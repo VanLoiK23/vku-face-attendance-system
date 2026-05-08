@@ -1,10 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const {login,register,forgot_password,reset_password} = require('../controllers/authController');
-const { getAllUser } = require('../controllers/userController');
+const { getAllUser,getAllStudent, getAllTeacher,createNewAccount,updateAccount, deleteAccount } = require('../controllers/admin/userController');
+const {getSubjects,createSubject,updateSubject,deleteSubject} = require('../controllers/admin/subjectController')
+const {getClassSection,createClassSection,updateClassSection,deleteClassSection} = require('../controllers/admin/classSectionController')
+const cohortController = require('../controllers/admin/cohortController');
+const {getAllSchedules,createSchedule,updateSchedule,deleteSchedule} = require('../controllers/admin/scheduleController')
 // const {auth,authIsAdmin} = require('../middlewares/auth')
+
 const authMiddleware = require('../middlewares/authMiddleware')
 const {getDashboard} = require('../controllers/studentDashboard');
+
+const authMiddleware = require('../middlewares/authMiddleware');
+const enrollmentController = require('../controllers/admin/enrollmentController');
+
+
 //apply middleware for all
 // router.use([auth]);
 
@@ -13,6 +23,41 @@ router.post('/auth/reset-password',reset_password);
 router.post('/auth/forgot-password',forgot_password);
 router.post('/auth/register',register);
 router.post('/auth/login',login);
+
+//subjects
+router.get('/subjects',getSubjects);
+router.post('/subjects',createSubject);
+router.put('/subjects/:id',updateSubject);
+router.delete('/subjects/:id',deleteSubject);
+
+//Class sections
+router.get('/class-sections',getClassSection);
+router.post('/class-sections',createClassSection);
+router.put('/class-sections/:id',updateClassSection);
+router.delete('/class-sections/:id',deleteClassSection);
+
+//Enrollment
+router.post('/enrollments', enrollmentController.enrollStudent);
+router.delete('/enrollments', enrollmentController.removeStudent);
+
+//Cohort
+router.get('/cohorts', cohortController.getAll);
+router.post('/cohorts', cohortController.create);
+router.put('/cohorts/:id', cohortController.update);
+router.delete('/cohorts/:id', cohortController.delete);
+
+router.get('/cohorts/:id/students', cohortController.getStudents);
+router.post('/cohorts/:cohortId/students', cohortController.assignStudents);
+router.delete('/cohorts/:cohortId/students/:sid', cohortController.removeStudent);
+
+// Schedule Management
+router.get('/schedules', getAllSchedules);
+router.post('/schedules', createSchedule);
+router.put('/schedules/:id', updateSchedule);
+router.delete('/schedules/:id', deleteSchedule);
+
+
+//check already login
 router.get('/auth/account',authMiddleware,(req, res) => {
     return res.json({
         user: req.user
@@ -21,10 +66,22 @@ router.get('/auth/account',authMiddleware,(req, res) => {
 
 //user
 router.get('/user',getAllUser)
+
 //student
 router.get(
     '/dashboard',
     // authMiddleware,
     getDashboard
 );
+
+router.get('/students',getAllStudent)
+router.get('/teachers',getAllTeacher)
+router.post('/students',createNewAccount)
+router.post('/teachers',createNewAccount)
+router.put('/students/:id',updateAccount)
+router.put('/teachers/:id',updateAccount)
+router.delete('/students/:id',deleteAccount)
+router.delete('/teachers/:id',deleteAccount)
+
+
 module.exports = router;

@@ -33,6 +33,8 @@ import Forbidden from "./pages/error/Forbidden";
 
 import ProtectedRoute from './route/ProtectedRoute.jsx';
 import RoleRoute from './route/RoleRoute.jsx';
+import CohortManagement from './pages/admin/Cohort.jsx';
+import SubjectsPage from './pages/admin/Subject.jsx';
 
 const router = createBrowserRouter([
   {
@@ -55,11 +57,14 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: "users", element: <UsersPage /> },
+          { path: "cohorts", element: <CohortManagement /> },
+          { path: "subjects", element: <SubjectsPage /> },
           { path: "classes", element: <ClassesPage /> },
           { path: "schedule", element: <SchedulePage /> },
           { path: "face-approval", element: <FaceApprovalPage /> },
           { path: "reports", element: <ReportsPage /> },
-          { path: "dashboard", element: <AdminDashboard/>}
+          { path: "dashboard", element: <AdminDashboard/>},
+          { path: "profile", element: <ProfilePage />}
         ]
       },
 
@@ -78,7 +83,8 @@ const router = createBrowserRouter([
           // { path: "attendance", element: <AttendancePage /> },
           // { path: "history", element: <AttendanceHistory /> }
           { path: "session-detail", element: <SessionDetail /> },
-          { path: "dashboard", element: <TeacherDashboard/>}
+          { path: "dashboard", element: <TeacherDashboard/>},
+          { path: "profile", element: <ProfilePage />}
         ]
       },
 
@@ -96,13 +102,9 @@ const router = createBrowserRouter([
           { path: "week-schedule", element: <WeekSchedule /> },
           { path: "my-attendance", element: <MyAttendance /> },
           { path: "face-upload", element: <FaceUpload /> },
-          { path: "dashboard", element: <StudentDashboard/>}
+          { path: "dashboard", element: <StudentDashboard/>},
+          { path: "profile", element: <ProfilePage />}
         ]
-      },
-      // COMMON
-      {
-        path: "profile",
-        element: <ProfilePage />
       }
     ]
   },
