@@ -2,111 +2,161 @@ const Schedule = require("../models/schedule");
 const ClassSection = require("../models/class_section");
 const Subject = require("../models/subject");
 const Teacher = require("../models/teacher");
+const Semester = require("../models/semester"); // Nhớ import thêm model này
+const { Op } = require("sequelize");
 
 const scheduleService = {
   create: async (data) => {
-    const { day_of_week, start_period, end_period, room, class_section_id } =
-      data;
+    const {
+      day_of_week,
+      start_period,
+      end_period,
+      week_start,
+      week_end,
+      room,
+      semester_id,
+      class_section_id,
+    } = data;
 
-    // 1. Check (Conflict Detection)
+    if (start_period > end_period)
+      throw new Error("Tiết bắt đầu không được lớn hơn tiết kết thúc");
+    if (week_start > week_end)
+      throw new Error("Tuần bắt đầu không được lớn hơn tuần kết thúc");
+    if (week_start < 1 || week_end > 20)
+      throw new Error("Tuần học phải từ 1 đến 20");
+    if (start_period < 1 || end_period > 10)
+      throw new Error("Tiết học phải từ 1 đến 10");
+
+    // (Conflict Detection)
+    // Cùng Học kỳ + Cùng Thứ + Giao thoa Tiết + Giao thoa Tuần + Cùng Phòng => trùng
     const conflict = await Schedule.findOne({
       where: {
-        day_of_week,
+        semester_id,
+        dayOfWeek: day_of_week,
         room,
-        [Op.or]: [
-          { start_period: { [Op.between]: [start_period, end_period] } },
-          { end_period: { [Op.between]: [start_period, end_period] } },
-          {
-            [Op.and]: [
-              { start_period: { [Op.lte]: start_period } },
-              { end_period: { [Op.gte]: end_period } },
-            ],
-          },
+        [Op.and]: [
+          // Kiểm tra giao thoa tiết học: (Start1 <= End2) AND (End1 >= Start2)
+          { startPeriod: { [Op.lte]: end_period } },
+          { endPeriod: { [Op.gte]: start_period } },
+          // Kiểm tra giao thoa tuần học: (WStart1 <= WEnd2) AND (WEnd1 >= WStart2)
+          { weekStart: { [Op.lte]: week_end } },
+          { weekEnd: { [Op.gte]: week_start } },
         ],
       },
+      include: [
+        { model: ClassSection, as: "classSection", attributes: ["name"] },
+      ],
     });
 
     if (conflict) {
       throw new Error(
-        `Xung đột lịch: Phòng ${room} đã được sử dụng từ tiết ${conflict.start_period} đến ${conflict.end_period}`
+        `Phòng ${room} đã được dùng bởi lớp "${conflict.classSection?.name}" ` +
+          `vào tiết ${conflict.start_period}-${conflict.end_period}, tuần ${conflict.week_start}-${conflict.week_end}`
       );
     }
 
-    // 2. OK then create
-    return await Schedule.create(data);
+    const createData = {
+      dayOfWeek: day_of_week,
+      startPeriod: start_period,
+      endPeriod: end_period,
+      weekStart: week_start,
+      weekEnd: week_end,
+      room: room,
+      semester_id,
+      class_section_id,
+    };
+
+    // Nếu mọi thứ OK thì mới tạo
+    return await Schedule.create(createData);
   },
+
   getAll: async () => {
     return await Schedule.findAll({
       include: [
         {
+          model: Semester,
+          as: "semester",
+          attributes: ["id", "name", "start_date", "is_active"],
+        },
+        {
           model: ClassSection,
-          as: "class_section",
+          as: "classSection",
           attributes: ["id", "name", "room"],
           include: [
-            {
-              model: Subject,
-              attributes: ["name", "code"],
-            },
-            {
-              model: Teacher,
-              attributes: ["name"],
-            },
+            { model: Subject, as: "subject", attributes: ["name", "code"] },
+            { model: Teacher, as: "teacher", attributes: ["name"] },
           ],
         },
       ],
       order: [
+        ["semester_id", "DESC"], // Hiện học kỳ mới nhất lên đầu
         ["day_of_week", "ASC"],
         ["start_period", "ASC"],
       ],
     });
   },
-  update: async (id, data) => {
-    const { day_of_week, start_period, end_period, room } = data;
 
-    // Kiểm tra trùng lịch nhưng bỏ qua ID hiện tại
+  update: async (id, data) => {
+    const {
+      day_of_week,
+      start_period,
+      end_period,
+      week_start,
+      week_end,
+      room,
+      semester_id,
+      class_section_id,
+    } = data;
+
+    if (start_period > end_period)
+      throw new Error("Tiết bắt đầu không được lớn hơn tiết kết thúc");
+    if (week_start > week_end)
+      throw new Error("Tuần bắt đầu không được lớn hơn tuần kết thúc");
+    if (week_start < 1 || week_end > 20)
+      throw new Error("Tuần học phải từ 1 đến 20");
+    if (start_period < 1 || end_period > 10)
+      throw new Error("Tiết học phải từ 1 đến 10");
+
     const conflict = await Schedule.findOne({
       where: {
-        id: { [Op.ne]: id }, // Không bao gồm chính nó (Not Equal)
+        id: { [Op.ne]: id },
+        semester_id,
         day_of_week,
         room,
-        [Op.or]: [
-          { start_period: { [Op.between]: [start_period, end_period] } },
-          { end_period: { [Op.between]: [start_period, end_period] } },
+        [Op.and]: [
+          // Kiểm tra giao thoa tiết học: (Start1 <= End2) AND (End1 >= Start2)
+          { startPeriod: { [Op.lte]: end_period } },
+          { endPeriod: { [Op.gte]: start_period } },
+          // Kiểm tra giao thoa tuần học: (WStart1 <= WEnd2) AND (WEnd1 >= WStart2)
+          { weekStart: { [Op.lte]: week_end } },
+          { weekEnd: { [Op.gte]: week_start } },
         ],
       },
     });
 
     if (conflict) {
       throw new Error(
-        "Lịch cập nhật bị trùng với một lịch học khác đã tồn tại!"
+        "Cập nhật thất bại: Khung giờ và tuần học này đã có lớp khác đăng ký phòng."
       );
     }
 
-    return await Schedule.update(data, {
-      where: { id },
-    });
+    const updateData = {
+      dayOfWeek: day_of_week,
+      startPeriod: start_period,
+      endPeriod: end_period,
+      weekStart: week_start,
+      weekEnd: week_end,
+      room: room,
+      semester_id,
+      class_section_id,
+    };
+
+    return await Schedule.update(updateData, { where: { id } });
   },
+
   delete: async (id) => {
-    const schedule = await Schedule.findByPk(id);
-    if (!schedule) {
-      throw new Error("Không tìm thấy lịch học cần xóa");
-    }
-
-    return await Schedule.destroy({
-      where: { id },
-    });
+    return await Schedule.destroy({ where: { id } });
   },
-
-  getByDay: async (day) =>
-    await Schedule.findAll({
-      where: { day_of_week: day },
-      include: [{ model: ClassSection, attributes: ["name", "room"] }],
-    }),
-
-  getByClass: async (classId) =>
-    await Schedule.findAll({
-      where: { class_id: classId },
-    }),
 };
 
 module.exports = scheduleService;

@@ -12,6 +12,7 @@ const authMiddleware = require('../middlewares/authMiddleware')
 const {getDashboard} = require('../controllers/studentDashboardController');
 
 const enrollmentController = require('../controllers/admin/enrollmentController');
+const semesterController = require('../controllers/admin/semesterController');
 const { getMyAttendance } = require("../controllers/studentAttendanceCotrnoller");
 const { getWeekSchedule } = require("../controllers/WeeklyScheduleController");
 const { getTodaySchedule } = require("../controllers/ScheduleTodayController");
@@ -57,6 +58,13 @@ router.post('/schedules', createSchedule);
 router.put('/schedules/:id', updateSchedule);
 router.delete('/schedules/:id', deleteSchedule);
 
+
+// Semester
+router.get('/semesters', semesterController.getAllSemesters);
+router.get('/semesters/:id', semesterController.getSemesterById);
+router.post('/semesters', semesterController.createSemester);
+router.put('/semesters/:id', semesterController.updateSemester);
+router.delete('/semesters/:id', semesterController.deleteSemester);
 
 //check already login
 router.get('/auth/account',authMiddleware,(req, res) => {

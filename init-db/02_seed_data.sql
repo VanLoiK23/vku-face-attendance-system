@@ -57,13 +57,26 @@ INSERT INTO class_sections (subject_id, teacher_id, name, room) VALUES
 INSERT INTO enrollments (student_id, class_section_id) VALUES 
 (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1);
 
+
+INSERT INTO semesters (name, start_date, is_active) VALUES 
+('Học kỳ 1 (2025-2026)', '2025-09-01', false),
+('Học kỳ 2 (2025-2026)', '2026-02-02', true),  -- HK hiện tại của VKU
+('Học kỳ Hè (2025-2026)', '2026-07-06', false);
 -- =========================
 -- SCHEDULES (Lịch học)
 -- =========================
-INSERT INTO schedules (class_section_id, day_of_week, start_period, end_period, week_start, week_end, room) VALUES 
-(1, 2, 1, 4, 1, 15, 'V.A212'),  -- Thứ 2 tiết 1-4
-(1, 4, 1, 3, 1, 15, 'V.B305');  -- Thứ 4 tiết 1-3
-
+INSERT INTO schedules (
+    class_section_id, 
+    semester_id,  -- Thêm cột này vào
+    day_of_week, 
+    start_period, 
+    end_period, 
+    week_start, 
+    week_end, 
+    room
+) VALUES 
+(1, 2, 2, 1, 4, 1, 15, 'V.A212'), -- Lịch cho học kỳ ID = 1
+(1, 2, 4, 1, 3, 1, 15, 'V.B305');
 -- =========================
 -- ATTENDANCE SESSIONS (Buổi điểm danh)
 -- =========================

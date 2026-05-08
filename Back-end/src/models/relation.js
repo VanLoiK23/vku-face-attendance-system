@@ -4,6 +4,7 @@ const ClassSection = require("./class_section");
 const Cohort = require("./cohort");
 const FaceEmbedding = require("./FaceEmbedding");
 const Schedule = require("./schedule");
+const Semester = require("./semester");
 const Student = require("./student");
 const Subject = require("./subject");
 const Teacher = require("./teacher");
@@ -65,6 +66,18 @@ Student.belongsTo(Cohort, { foreignKey: 'cohort_id', as: 'cohort' });
 // Class - Schedule
 ClassSection.hasMany(Schedule, { foreignKey: 'class_section_id', as: 'schedules' });
 Schedule.belongsTo(ClassSection, { foreignKey: 'class_section_id', as: 'classSection' });
+
+// Class - Semeter
+Semester.hasMany(Schedule, { 
+    foreignKey: 'semester_id',
+    as: 'schedules',
+    onDelete: 'RESTRICT' // Chặn xóa học kỳ nếu còn lịch
+});
+
+Schedule.belongsTo(Semester, { 
+    foreignKey: 'semester_id',
+    as: 'semester' 
+});
 
 // Schedule - Session
 Schedule.hasMany(AttendanceSession, { foreignKey: 'schedule_id', as: 'sessions' });
