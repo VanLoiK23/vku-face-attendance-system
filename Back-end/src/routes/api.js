@@ -9,11 +9,12 @@ const {getAllSchedules,createSchedule,updateSchedule,deleteSchedule} = require('
 // const {auth,authIsAdmin} = require('../middlewares/auth')
 
 const authMiddleware = require('../middlewares/authMiddleware')
-const {getDashboard} = require('../controllers/studentDashboard');
+const {getDashboard} = require('../controllers/studentDashboardController');
 
-const authMiddleware = require('../middlewares/authMiddleware');
 const enrollmentController = require('../controllers/admin/enrollmentController');
-
+const { getMyAttendance } = require("../controllers/studentAttendanceCotrnoller");
+const { getWeekSchedule } = require("../controllers/WeeklyScheduleController");
+const { getTodaySchedule } = require("../controllers/ScheduleTodayController");
 
 //apply middleware for all
 // router.use([auth]);
@@ -70,10 +71,17 @@ router.get('/user',getAllUser)
 //student
 router.get(
     '/dashboard',
-    // authMiddleware,
+      authMiddleware,
     getDashboard
 );
+router.get("/student/attendance", authMiddleware, getMyAttendance);
+router.get("/schedule/week",
+    //  authMiddleware,
+      getWeekSchedule);
 
+router.get("/schedule/today",
+     //authMiddleware, 
+     getTodaySchedule);
 router.get('/students',getAllStudent)
 router.get('/teachers',getAllTeacher)
 router.post('/students',createNewAccount)

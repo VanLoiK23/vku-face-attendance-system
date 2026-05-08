@@ -156,4 +156,4 @@ const studentService = {
   },
 };
 
-module.exports = { studentService };
+module.exports =  studentService ;

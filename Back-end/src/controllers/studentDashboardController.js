@@ -2,9 +2,9 @@ const studentDashboardService = require('../services/studentDashboardService');
 
 const getDashboard = async (req, res) => {
     try {
-        const studentId = req.user?.id;
+      const userId = req.user?.id;
 
-        const data = await studentDashboardService.getDashboard(studentId);
+        const data = await studentDashboardService.getDashboard(userId);
 
         return res.status(200).json({
             success: true,
