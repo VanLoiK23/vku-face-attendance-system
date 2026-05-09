@@ -5,28 +5,31 @@ const ClassSection = require("../models/class_section");
 const AttendanceRecord = require("../models/AttendanceRecord");
 const AttendanceSession = require("../models/AttendanceSession");
 const { Op } = require("sequelize");
-
+const Cohort = require("../models/cohort");
 const getDashboard = async (userId) => {
   if (!userId) throw new Error("userId is required");
 
-  // 🔥 FIX: find by user_id (KHÔNG dùng findByPk)
-  const student = await Student.findOne({
-    where: { user_id: userId },
-    include: [
-      {
-        model: User,
-        as: "user",
-        attributes: ["email"],
-      },
-      {
-        model: ClassSection,
-        as: "classSections",
-        attributes: ["id", "name"],
-        through: { attributes: [] },
-      },
-    ],
-  });
-
+ const student = await Student.findOne({
+  where: { user_id: userId },
+  include: [
+    {
+      model: User,
+      as: "user",
+      attributes: ["email"],
+    },
+    {
+      model: Cohort,
+      as: "cohort",
+      attributes: ["id", "name"],
+    },
+    {
+      model: ClassSection,
+      as: "classSections",
+      attributes: ["id", "name"],
+      through: { attributes: [] },
+    },
+  ],
+});
   if (!student) throw new Error("Student not found");
 
   const classIds = student.classSections?.map((c) => c.id) || [];
@@ -56,16 +59,29 @@ const getDashboard = async (userId) => {
   }
 
   const recentAttendance = await AttendanceRecord.findAll({
-    where: { student_id: student.id },
-    limit: 5,
-    order: [["id", "DESC"]],
-    include: [
-      {
-        model: AttendanceSession,
-        as: "session",
-      },
-    ],
-  });
+  where: { student_id: student.id },
+  limit: 5,
+  order: [["id", "DESC"]],
+  include: [
+    {
+      model: AttendanceSession,
+      as: "session",
+      include: [
+        {
+          model: Schedule,
+          as: "schedule",
+          include: [
+            {
+              model: ClassSection,
+              as: "classSection",
+              attributes: ["id", "name"],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
 
   const totalPresent = await AttendanceRecord.count({
     where: { student_id: student.id, status: "present" },

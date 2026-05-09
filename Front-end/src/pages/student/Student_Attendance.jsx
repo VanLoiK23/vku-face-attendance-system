@@ -15,12 +15,16 @@ const MyAttendance = () => {
 
       const res = await instance.get("/student/attendance");
 
-      const data = res.data?.data;
+      // ✅ FIX: Bọc an toàn, tránh lỗi khi Axios cấu hình interceptors trả thẳng về data
+      const responsePayload = res.data !== undefined ? res.data : res;
+      const data = responsePayload?.data;
 
-      setStats(data?.stats);
-      setAttendance(data?.attendanceHistory || []);
+      if (data) {
+        setStats(data?.stats);
+        setAttendance(data?.attendanceHistory || []);
+      }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast.error("Load attendance failed");
     } finally {
       setLoading(false);
@@ -42,7 +46,6 @@ const MyAttendance = () => {
 
   return (
     <div>
-
       {/* STATS */}
       <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
         <div className="card" style={{ flex: 1, textAlign: "center" }}>
@@ -118,12 +121,17 @@ const MyAttendance = () => {
                   </td>
                 </tr>
               ))}
+              {filteredData.length === 0 && (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>
+                    Không có dữ liệu
+                  </td>
+                </tr>
+              )}
             </tbody>
-
           </table>
         </div>
       </div>
-
     </div>
   );
 };

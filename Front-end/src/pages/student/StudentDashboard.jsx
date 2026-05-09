@@ -6,16 +6,21 @@ import { toast } from "react-toastify";
 const StudentDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchDashboard = async () => {
     try {
       setLoading(true);
+      setError(null);
 
-      const res = await instance.get("/dashboard"); 
+      const res = await instance.get("/dashboard");
+
       setData(res.data?.data);
     } catch (err) {
-      toast.error("Lỗi tải dashboard");
       console.log(err);
+
+      setError("Không thể tải dashboard");
+      toast.error("Lỗi tải dashboard");
     } finally {
       setLoading(false);
     }
@@ -25,11 +30,35 @@ const StudentDashboard = () => {
     fetchDashboard();
   }, []);
 
-  if (loading || !data) {
+  // Loading
+  if (loading) {
     return <div style={{ padding: 20 }}>Loading...</div>;
   }
 
-  const { student, stats, schedules, recentAttendance } = data;
+  // Error
+  if (error) {
+    return (
+      <div style={{ padding: 20, color: "red" }}>
+        {error}
+      </div>
+    );
+  }
+
+  // Empty data
+  if (!data) {
+    return (
+      <div style={{ padding: 20 }}>
+        Không có dữ liệu
+      </div>
+    );
+  }
+
+  const {
+    student = {},
+    stats = {},
+    schedules = [],
+    recentAttendance = [],
+  } = data;
 
   const today = new Date().toLocaleDateString("vi-VN");
 
@@ -37,45 +66,103 @@ const StudentDashboard = () => {
     <div>
 
       {/* HEADER */}
-      <div style={{
-        background: "linear-gradient(135deg, #4f46e5, #06b6d4)",
-        borderRadius: 16,
-        padding: 28,
-        marginBottom: 24,
-        color: "white",
-        display: "flex",
-        alignItems: "center",
-        gap: 24
-      }}>
-        <Avatar initials={student?.name?.slice(0,2)?.toUpperCase()} size="xl" />
+      <div
+        style={{
+          background: "linear-gradient(135deg, #4f46e5, #06b6d4)",
+          borderRadius: 16,
+          padding: 28,
+          marginBottom: 24,
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          gap: 24,
+        }}
+      >
+        <Avatar
+          initials={(student?.name || "ST")
+            .slice(0, 2)
+            .toUpperCase()}
+          size="xl"
+        />
 
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 22, fontWeight: 800 }}>
-            Xin chào, {student?.name} 👋
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 800,
+            }}
+          >
+            Xin chào, {student?.name || "Sinh viên"} 👋
           </div>
-          <div style={{ fontSize: 14, opacity: 0.85, marginTop: 4 }}>
-            {student?.studentCode} · {student?.cohort?.name || ""} · Hôm nay {today}
+
+          <div
+            style={{
+              fontSize: 14,
+              opacity: 0.85,
+              marginTop: 4,
+            }}
+          >
+            {student?.studentCode || "--"} ·{" "}
+            {student?.cohort?.name || "--"} ·{" "}
+            Hôm nay {today}
           </div>
         </div>
 
-        <div style={{
-          textAlign: "center",
-          background: "rgba(255,255,255,0.15)",
-          padding: "18px 26px",
-          borderRadius: 12
-        }}>
-          <div style={{ fontSize: 38, fontWeight: 900 }}>
+        <div
+          style={{
+            textAlign: "center",
+            background: "rgba(255,255,255,0.15)",
+            padding: "18px 26px",
+            borderRadius: 12,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 38,
+              fontWeight: 900,
+            }}
+          >
             {stats?.attendanceRate || 0}%
           </div>
-          <div style={{ fontSize: 13, opacity: 0.8 }}>Chuyên cần</div>
+
+          <div
+            style={{
+              fontSize: 13,
+              opacity: 0.8,
+            }}
+          >
+            Chuyên cần
+          </div>
         </div>
       </div>
 
       {/* STATS */}
-      <div className="stats-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-        <StatCard icon="📅" label="Hôm nay" value={stats?.todaySchedules || 0} color="#3b82f6" />
-        <StatCard icon="✅" label="Có mặt" value={stats?.totalPresent || 0} color="#10b981" />
-        <StatCard icon="❌" label="Vắng" value={stats?.totalAbsent || 0} color="#ef4444" />
+      <div
+        className="stats-grid"
+        style={{
+          gridTemplateColumns: "repeat(3, 1fr)",
+        }}
+      >
+        <StatCard
+          icon="📅"
+          label="Hôm nay"
+          value={stats?.todaySchedules || 0}
+          color="#3b82f6"
+        />
+
+        <StatCard
+          icon="✅"
+          label="Có mặt"
+          value={stats?.totalPresent || 0}
+          color="#10b981"
+        />
+
+        <StatCard
+          icon="❌"
+          label="Vắng"
+          value={stats?.totalAbsent || 0}
+          color="#ef4444"
+        />
       </div>
 
       {/* MAIN GRID */}
@@ -84,14 +171,23 @@ const StudentDashboard = () => {
         {/* SCHEDULE */}
         <div className="card">
           <div className="card-header">
-            <span className="card-title">📋 Lịch học hôm nay</span>
+            <span className="card-title">
+              📋 Lịch học hôm nay
+            </span>
           </div>
 
-          {schedules?.length === 0 && (
-            <div style={{ padding: 16, color: "#666" }}>Không có lịch hôm nay</div>
+          {schedules.length === 0 && (
+            <div
+              style={{
+                padding: 16,
+                color: "#666",
+              }}
+            >
+              Không có lịch hôm nay
+            </div>
           )}
 
-          {schedules?.map((s) => (
+          {schedules.map((s) => (
             <div
               key={s.id}
               style={{
@@ -99,15 +195,22 @@ const StudentDashboard = () => {
                 borderTop: "1px solid #eee",
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <div>
                 <div style={{ fontWeight: 600 }}>
-                  {s.classSection?.name}
+                  {s.classSection?.name || "Unknown"}
                 </div>
-                <div style={{ fontSize: 12, color: "#888" }}>
-                  Tiết {s.startPeriod}-{s.endPeriod} · Phòng {s.room}
+
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#888",
+                  }}
+                >
+                  Tiết {s.startPeriod}-{s.endPeriod} ·
+                  Phòng {s.room || "--"}
                 </div>
               </div>
 
@@ -119,10 +222,23 @@ const StudentDashboard = () => {
         {/* ATTENDANCE */}
         <div className="card">
           <div className="card-header">
-            <span className="card-title">📊 Điểm danh gần đây</span>
+            <span className="card-title">
+              📊 Điểm danh gần đây
+            </span>
           </div>
 
-          {recentAttendance?.map((a) => (
+          {recentAttendance.length === 0 && (
+            <div
+              style={{
+                padding: 16,
+                color: "#666",
+              }}
+            >
+              Chưa có dữ liệu điểm danh
+            </div>
+          )}
+
+          {recentAttendance.map((a) => (
             <div
               key={a.id}
               style={{
@@ -130,22 +246,49 @@ const StudentDashboard = () => {
                 borderTop: "1px solid #eee",
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <div>
                 <div style={{ fontWeight: 600 }}>
-                  {a.session?.schedule?.classSection?.name || "Unknown"}
+                  {a.session?.schedule?.classSection?.name ||
+                    "Unknown"}
                 </div>
-                <div style={{ fontSize: 12, color: "#888" }}>
-                  {a.session?.sessionDate}
+
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#888",
+                  }}
+                >
+                  {a.session?.sessionDate
+                    ? new Date(
+                        a.session.sessionDate
+                      ).toLocaleDateString("vi-VN")
+                    : "--"}
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: "#666" }}>
-                  {a.checkinTime}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "#666",
+                  }}
+                >
+                  {a.checkinTime
+                    ? new Date(
+                        a.checkinTime
+                      ).toLocaleTimeString("vi-VN")
+                    : "--"}
                 </span>
+
                 <StatusBadge status={a.status} />
               </div>
             </div>
