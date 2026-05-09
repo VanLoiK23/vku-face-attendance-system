@@ -2,7 +2,7 @@ const todayScheduleService = require("../../services/ScheduleTodayService");
 
 const getTodaySchedule = async (req, res) => {
   try {
-    const userId = 3;
+      const userId = req.user?.id;
 
     const data = await todayScheduleService.getTodaySchedule(userId);
 
