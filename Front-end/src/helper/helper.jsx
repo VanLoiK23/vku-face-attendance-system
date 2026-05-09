@@ -11,6 +11,7 @@ const Avatar = ({ initials, size = "md" }) => (
   
   const StatusBadge = ({ status }) => {
     const map = {
+      completed: ["green", "✓ Đã xong"],
       present: ["green", "✓ Có mặt"],
       absent: ["red", "✗ Vắng"],
       late: ["yellow", "⏰ Trễ"],

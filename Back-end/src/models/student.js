@@ -17,7 +17,16 @@ const Student = sequelize.define('Student', {
             isIn: [['confirm', 'pending', 'reject']]
         }
     },
-
+    faceVideoUrl: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        field: 'face_video_url'
+    },
+    rejectReason: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'reject_reason'
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false

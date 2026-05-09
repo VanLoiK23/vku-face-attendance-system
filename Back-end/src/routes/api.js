@@ -6,6 +6,9 @@ const {getSubjects,createSubject,updateSubject,deleteSubject} = require('../cont
 const {getClassSection,createClassSection,updateClassSection,deleteClassSection} = require('../controllers/admin/classSectionController')
 const cohortController = require('../controllers/admin/cohortController');
 const {getAllSchedules,createSchedule,updateSchedule,deleteSchedule} = require('../controllers/admin/scheduleController')
+
+const {getTeacherSections, getTeacherDetailSection, getTeacherDetailSessions} = require("../controllers/teacher/classSectionController")
+
 // const {auth,authIsAdmin} = require('../middlewares/auth')
 
 const authMiddleware = require('../middlewares/authMiddleware')
@@ -80,6 +83,13 @@ router.delete('/teachers/:id',deleteAccount)
 router.put('/users/profile',authMiddleware,updateProfile)
 router.put('/users/change-password',authMiddleware,changePassword)
 
+
+//teacher
+
+//classSection for teacher
+router.get("/teacher/class-sections",authMiddleware,getTeacherSections)
+router.get("/teacher/class-sections/:classId/sessions", authMiddleware, getTeacherDetailSection)
+router.get("/teacher/sessions/:sessionId", authMiddleware, getTeacherDetailSessions)
 //check already login
 router.get('/auth/account',authMiddleware,(req, res) => {
     return res.json({
