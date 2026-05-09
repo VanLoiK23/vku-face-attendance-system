@@ -76,11 +76,11 @@ router.get(
 );
 router.get("/student/attendance", authMiddleware, getMyAttendance);
 router.get("/schedule/week",
-    //  authMiddleware,
+      authMiddleware,
       getWeekSchedule);
 
 router.get("/schedule/today",
-     //authMiddleware, 
+     authMiddleware, 
      getTodaySchedule);
 router.get('/students',getAllStudent)
 router.get('/teachers',getAllTeacher)

@@ -2,7 +2,7 @@ const scheduleService = require("../services/WeeklyScheduleService");
 
 const getWeekSchedule = async (req, res) => {
   try {
-    const userId = 5;
+    const userId = req.user?.id;
 
     const data = await scheduleService.getWeekSchedule(userId);
 
