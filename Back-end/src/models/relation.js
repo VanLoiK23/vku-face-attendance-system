@@ -67,7 +67,7 @@ Student.belongsTo(Cohort, { foreignKey: 'cohort_id', as: 'cohort' });
 ClassSection.hasMany(Schedule, { foreignKey: 'class_section_id', as: 'schedules' });
 Schedule.belongsTo(ClassSection, { foreignKey: 'class_section_id', as: 'classSection' });
 
-// Class - Semeter
+// SChedule - Semeter
 Semester.hasMany(Schedule, { 
     foreignKey: 'semester_id',
     as: 'schedules',
@@ -82,7 +82,6 @@ Schedule.belongsTo(Semester, {
 // Schedule - Session
 Schedule.hasMany(AttendanceSession, { foreignKey: 'schedule_id', as: 'sessions' });
 AttendanceSession.belongsTo(Schedule, { foreignKey: 'schedule_id', as: 'schedule' });
-
 
 // ================= ATTENDANCE =================
 
