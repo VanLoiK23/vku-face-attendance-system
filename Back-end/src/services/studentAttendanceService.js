@@ -39,7 +39,7 @@ const studentAttendanceService = {
           ],
         },
       ],
-      order: [["id", "DESC"]], // ✅ FIX
+      order: [["id", "DESC"]], 
       limit: 50,
     });
 
@@ -47,19 +47,25 @@ const studentAttendanceService = {
       absent = 0,
       late = 0;
 
-    const attendanceHistory = records.map((r) => {
-  if (r.status === "present") present++;
-  else if (r.status === "absent") absent++;
-  else if (r.status === "late") late++;
+    const attendanceHistory = records.map((record) => {
+      // ✅ FIX: Chuyển đổi object của Sequelize sang dạng JSON thuần để truy cập dữ liệu lồng nhau
+      const r = record.get({ plain: true });
 
-  return {
-    id: r.id,
-    date: r.session?.sessionDate || r.session?.session_date || "-", // ✅ FIX
-    subject: r.session?.schedule?.classSection?.subject?.name || "Unknown",
-    time: r.checkin_time || "-",
-    status: r.status,
-  };
-});
+      // ✅ FIX: Đưa về chữ thường để tránh lỗi viết hoa/thường (VD: "Present" vs "present")
+      const statusStr = r.status ? r.status.toLowerCase() : "";
+
+      if (statusStr === "present") present++;
+      else if (statusStr === "absent") absent++;
+      else if (statusStr === "late") late++;
+
+      return {
+        id: r.id,
+        date: r.session?.sessionDate || r.session?.session_date || "-", 
+        subject: r.session?.schedule?.classSection?.subject?.name || "Unknown",
+        time: r.checkin_time || "-",
+        status: r.status,
+      };
+    });
 
     const total = present + absent + late;
 

@@ -1,28 +1,29 @@
 import { useState, useEffect } from "react";
 import instance from "./../utils/axios.customize";
+
 const WeekSchedule = () => {
-  const days = ["T2", "T3", "T4", "T5", "T6", "T7"];
-  const periods = [
-    { id: "1-3", label: "Tiết 1-3\n07:00-09:30" },
-    { id: "4-6", label: "Tiết 4-6\n09:45-12:15" },
-    { id: "7-9", label: "Tiết 7-9\n13:00-15:30" },
+  const days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+  
+  // Định nghĩa các "Ca" học thay vì tiết cứng nhắc
+  const timeSlots = [
+    { label: "Sáng (Tiết 1-6)", startRange: 1, endRange: 6 },
+    { label: "Chiều (Tiết 7-12)", startRange: 7, endRange: 12 },
   ];
 
-  const [weekData, setWeekData] = useState({
-    T2: [],
-    T3: [],
-    T4: [],
-    T5: [],
-    T6: [],
-    T7: [],
-  });
+  const [weekData, setWeekData] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const fetchWeekSchedule = async () => {
     try {
+      setLoading(true);
       const res = await instance.get("/schedule/week");
-      setWeekData(res.data?.data || {});
+      // Fix bóc tách data từ Axios
+      const result = res.data?.data || res.data || {};
+      setWeekData(result);
     } catch (err) {
-      console.error(err);
+      console.error("Lỗi fetch lịch tuần:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,52 +31,61 @@ const WeekSchedule = () => {
     fetchWeekSchedule();
   }, []);
 
+  if (loading) return <div style={{ padding: 20 }}>Đang tải lịch tuần...</div>;
+
   return (
     <div>
-      <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
         <select className="form-input form-select" style={{ width: 220 }}>
           <option>Tuần hiện tại</option>
         </select>
+        <button className="btn" onClick={fetchWeekSchedule}>Làm mới</button>
       </div>
 
-      <div className="card">
-        <div className="week-grid">
-          <div className="week-header">Tiết</div>
-
+      <div className="card" style={{ overflowX: "auto" }}>
+        <div className="week-grid" style={{ minWidth: "800px" }}>
+          {/* Header */}
+          <div className="week-header">Thời gian</div>
           {days.map((d) => (
-            <div key={d} className="week-header">
-              {d}
-            </div>
+            <div key={d} className="week-header">{d === "CN" ? "Chủ Nhật" : d}</div>
           ))}
 
-          {periods.map((p, pi) => (
-            <div key={pi} style={{ display: "contents" }}>
-              <div className="week-period-label">
-                {p.label.split("\n").map((l, i) => (
-                  <div key={i}>{l}</div>
-                ))}
+          {/* Rows theo Ca học */}
+          {timeSlots.map((slot, si) => (
+            <div key={si} style={{ display: "contents" }}>
+              <div className="week-period-label" style={{ backgroundColor: "#f8fafc", fontWeight: 600 }}>
+                {slot.label}
               </div>
 
               {days.map((d) => {
+                // ✅ FIX: Tìm các bài học có startPeriod nằm trong khung của Slot này
                 const lessons = (weekData[d] || []).filter(
-                  (l) => l.period === p.id
+                  (l) => l.startPeriod >= slot.startRange && l.startPeriod <= slot.endRange
                 );
 
                 return (
-                  <div key={`${d}-${pi}`} className="week-cell">
-                    {lessons.map((l, i) => (
-                      <div key={i} className="week-lesson">
-                        <div style={{ fontWeight: 700, fontSize: 12 }}>
-                          {l.subject}
+                  <div key={`${d}-${si}`} className="week-cell">
+                    {lessons.length > 0 ? (
+                      lessons.map((l, i) => (
+                        <div key={i} className="week-lesson" style={{ 
+                          backgroundColor: "#e0f2fe", 
+                          borderLeft: "4px solid #0ea5e9",
+                          marginBottom: "4px" 
+                        }}>
+                          <div style={{ fontWeight: 700, fontSize: 12, color: "#0369a1" }}>
+                            {l.subject}
+                          </div>
+                          <div style={{ fontSize: 11, color: "#0c4a6e" }}>
+                            ⏰ {l.time}
+                          </div>
+                          <div style={{ fontSize: 10, opacity: 0.8, fontWeight: 600 }}>
+                            🚪 Phòng: {l.room}
+                          </div>
                         </div>
-                        <div style={{ fontSize: 10.5, opacity: 0.85 }}>
-                          {l.class}
-                        </div>
-                        <div style={{ fontSize: 10.5, opacity: 0.85 }}>
-                          🚪 {l.room}
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <div style={{ color: "#cbd5e1", fontSize: 10, textAlign: "center" }}>-</div>
+                    )}
                   </div>
                 );
               })}

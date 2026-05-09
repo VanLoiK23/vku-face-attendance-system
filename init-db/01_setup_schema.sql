@@ -42,12 +42,11 @@ CREATE TABLE students (
     user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     student_code VARCHAR(50) UNIQUE,
     face_status VARCHAR(20) CHECK (face_status IN ('confirm', 'pending', 'reject')) NULL,
-    face_video_url TEXT NULL, -- Lưu link từ Cloudinary
-    reject_reason VARCHAR(255) NULL,
+    face_video_url TEXT,
+    reject_reason VARCHAR(255),
     name VARCHAR(255) NOT NULL,
     cohort_id INT REFERENCES cohorts(id) ON DELETE SET NULL
 );
-
 -- =========================
 -- SUBJECTS (MÔN HỌC)
 -- =========================
