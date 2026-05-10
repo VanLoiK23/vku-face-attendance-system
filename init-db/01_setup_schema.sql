@@ -45,6 +45,8 @@ CREATE TABLE students (
     face_video_url TEXT,
     reject_reason VARCHAR(255),
     name VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP NULL,
+    face_video_public_id VARCHAR(255),
     cohort_id INT REFERENCES cohorts(id) ON DELETE SET NULL
 );
 -- =========================
