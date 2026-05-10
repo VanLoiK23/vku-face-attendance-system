@@ -47,7 +47,6 @@ CREATE TABLE students (
     name VARCHAR(255) NOT NULL,
     cohort_id INT REFERENCES cohorts(id) ON DELETE SET NULL
 );
-
 -- =========================
 -- SUBJECTS (MÔN HỌC)
 -- =========================
@@ -145,7 +144,11 @@ CREATE TABLE attendance_records (
 CREATE TABLE face_embeddings (
     id SERIAL PRIMARY KEY,
     student_id INT REFERENCES students(id) ON DELETE CASCADE,
-    embedding VECTOR(512),
+
+    mean_embedding VECTOR(256), 
+    
+    all_embeddings JSONB,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

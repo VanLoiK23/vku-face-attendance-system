@@ -1,14 +1,21 @@
-const AttendanceSession = require('../models/attendance_session');
-const AttendanceRecord = require('../models/attendance_record');
+const AttendanceSession = require('../models/AttendanceSession');
+const AttendanceRecord = require('../models/AttendanceRecord');
 const Student = require('../models/student');
 
 const attendanceService = {
     createSession: async (data) => await AttendanceSession.create(data),
 
+    bulkCreateRecords: async (records) => {
+        return await AttendanceRecord.bulkCreate(records);
+    },
+
     upsertRecord: async (data) => {
-        const { session_id, student_id, status, checkin_time, similarity } = data;
+        const { session_id, student_id, status, checkinTime, similarity } = data;
         return await AttendanceRecord.upsert({
-            session_id, student_id, status, checkin_time, similarity
+            session_id, student_id, status, checkinTime, similarity
+        }, {
+            // Chỉ định Postgres dựa vào cặp này để xử lý xung đột
+            conflictFields: ['session_id', 'student_id'] 
         });
     },
 

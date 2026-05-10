@@ -37,6 +37,7 @@ import CohortManagement from "./pages/admin/Cohort.jsx";
 import SubjectsPage from "./pages/admin/Subject.jsx";
 import ClassSectionList from "./pages/teacher/ClassSectionList.jsx";
 import SessionList from "./pages/teacher/SessionList.jsx";
+import AttendancePage from "./pages/teacher/AttendanceCNN.jsx";
 
 const router = createBrowserRouter([
   {
@@ -82,7 +83,7 @@ const router = createBrowserRouter([
           { index: true, element: <TeacherDashboard /> },
           { path: "today-schedule", element: <TodaySchedule role="teacher" /> },
           { path: "week-schedule", element: <WeekSchedule /> },
-          // { path: "attendance/:sessionId", element: <AttendancePage />},
+          { path: "attendance/cnn/:scheduleId", element: <AttendancePage />},
           { path: "history", element: <ClassSectionList /> },
           { path: "history/section/:classId", element: <SessionList /> },
           {

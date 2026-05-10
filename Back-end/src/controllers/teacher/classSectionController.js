@@ -1,4 +1,4 @@
-const attendanceSessionService = require("../../services/attendanceSessionService");
+const {attendanceSessionService} = require("../../services/attendanceSessionService");
 const classSectionService = require("../../services/classSectionService");
 
 const calculateTotalSessions = (schedules) => {

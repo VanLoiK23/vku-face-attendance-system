@@ -7,12 +7,22 @@ const Semester = require("../models/semester");
 const Schedule = require("../models/schedule");
 const AttendanceSession = require("../models/AttendanceSession");
 const AttendanceRecord = require("../models/AttendanceRecord");
+const { Op } = require("sequelize");
+const { getById } = require("./scheduleService");
 
 const attendanceSessionService = {
   create: async (data) => {
     return await AttendanceSession.create(data);
   },
-
+  getTodaySessionByScheduleId: async (scheduleId) => {
+    const today = new Date().toISOString().split("T")[0];
+    return await AttendanceSession.findOne({
+      where: {
+        schedule_id: scheduleId,
+        sessionDate: today,
+      },
+    });
+  },
   getAll: async () => {
     return await AttendanceSession.findAll({
       include: [
@@ -98,6 +108,10 @@ const attendanceSessionService = {
     });
   },
 
+  getById: async (id) => {
+    return await AttendanceSession.findByPk(id);
+  },
+
   update: async (id, data) => {
     return await AttendanceSession.update(data, {
       where: { id },
@@ -111,4 +125,15 @@ const attendanceSessionService = {
   },
 };
 
-module.exports = attendanceSessionService;
+const getTodaySessionByScheduleId = async (schedule_id) => {
+  const today = new Date().toISOString().split("T")[0];
+
+  return await AttendanceSession.findOne({
+    where: {
+      schedule_id: schedule_id,
+      session_date: today,
+    },
+  });
+};
+
+module.exports = { attendanceSessionService, getTodaySessionByScheduleId };
