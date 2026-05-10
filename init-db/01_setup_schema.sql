@@ -42,8 +42,8 @@ CREATE TABLE students (
     user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     student_code VARCHAR(50) UNIQUE,
     face_status VARCHAR(20) CHECK (face_status IN ('confirm', 'pending', 'reject')) NULL,
-    face_video_url TEXT,
-    reject_reason VARCHAR(255),
+    face_video_url TEXT NULL, -- Lưu link từ Cloudinary
+    reject_reason VARCHAR(255) NULL,
     name VARCHAR(255) NOT NULL,
     uploaded_at TIMESTAMP NULL,
     face_video_public_id VARCHAR(255),
@@ -146,7 +146,11 @@ CREATE TABLE attendance_records (
 CREATE TABLE face_embeddings (
     id SERIAL PRIMARY KEY,
     student_id INT REFERENCES students(id) ON DELETE CASCADE,
-    embedding VECTOR(512),
+
+    mean_embedding VECTOR(256), 
+    
+    all_embeddings JSONB,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

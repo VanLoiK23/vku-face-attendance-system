@@ -4,6 +4,9 @@ const Subject = require("../models/subject");
 const Teacher = require("../models/teacher");
 const Semester = require("../models/semester"); // Nhớ import thêm model này
 const { Op } = require("sequelize");
+const AttendanceSession = require("../models/AttendanceSession");
+const Student = require("../models/student");
+const AttendanceRecord = require("../models/AttendanceRecord");
 
 const scheduleService = {
   create: async (data) => {
@@ -92,6 +95,60 @@ const scheduleService = {
         ["semester_id", "DESC"], // Hiện học kỳ mới nhất lên đầu
         ["day_of_week", "ASC"],
         ["start_period", "ASC"],
+      ],
+    });
+  },
+
+  getById: async (id) => {
+    const today = new Date().toISOString().split("T")[0];
+
+    return await Schedule.findByPk(id, {
+      include: [
+        {
+          model: AttendanceSession,
+          as: "sessions",
+          attributes: ["id", "sessionDate"],
+          where: { sessionDate: today },
+          required: false, // chưa có session hôm nay vẫn trả về Schedule
+          include: [
+            {
+              model: AttendanceRecord,
+              as: "records",
+              where: { status: { [Op.ne]: "absent" } }, // Chỉ lấy PRESENT/LATE
+              required: false,
+              include: [
+                {
+                  model: Student,
+                  as: "student",
+                  attributes: ["id", "studentCode", "name"],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          model: ClassSection,
+          as: "classSection",
+          attributes: ["id", "name", "room"],
+          include: [
+            {
+              model: Student,
+              as: "students",
+              attributes: ["id", "name", "studentCode"],
+              through: { attributes: [] },
+            },
+            { model: Subject, as: "subject", attributes: ["name", "code"] },
+            { model: Teacher, as: "teacher", attributes: ["id", "name"] },
+          ],
+        },
+      ],
+      order: [
+        [
+          { model: ClassSection, as: "classSection" },
+          { model: Student, as: "students" },
+          "name",
+          "ASC",
+        ],
       ],
     });
   },

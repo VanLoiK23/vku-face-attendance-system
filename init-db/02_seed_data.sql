@@ -92,9 +92,8 @@ INSERT INTO attendance_records (session_id, student_id, status, checkin_time, si
 (1, 3, 'absent', NULL, NULL);
 
 -- =========================
--- FACE EMBEDDINGS (Mẫu vector giả cho AI)
+-- FACE EMBEDDINGS 
 -- =========================
--- Lưu ý: Phải cài extension vector mới chạy được dòng này
-INSERT INTO face_embeddings (student_id, embedding) VALUES 
-(1, array_fill(0.1, ARRAY[512])::vector),
-(2, array_fill(0.2, ARRAY[512])::vector);
+-- INSERT INTO face_embeddings (student_id, embedding) VALUES 
+-- (1, array_fill(0.1, ARRAY[512])::vector),
+-- (2, array_fill(0.2, ARRAY[512])::vector);

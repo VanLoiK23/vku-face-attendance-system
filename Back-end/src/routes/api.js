@@ -51,17 +51,12 @@ const {
   getDashboard,
 } = require("../controllers/student/studentDashboardController");
 
-const enrollmentController = require("../controllers/admin/enrollmentController");
-const semesterController = require("../controllers/admin/semesterController");
-const {
-  getMyAttendance,
-} = require("../controllers/student/studentAttendanceController");
-const {
-  getWeekSchedule,
-} = require("../controllers/student/WeeklyScheduleController");
-const {
-  getTodaySchedule,
-} = require("../controllers/student/ScheduleTodayController");
+const enrollmentController = require('../controllers/admin/enrollmentController');
+const semesterController = require('../controllers/admin/semesterController');
+const { getMyAttendance } = require("../controllers/student/studentAttendanceController");
+const { getWeekSchedule } = require("../controllers/student/WeeklyScheduleController");
+const { getTodaySchedule } = require("../controllers/student/ScheduleTodayController");
+const { startAttendanceSession,checkin  } = require('../controllers/teacher/scheduleController');
 
 //apply middleware for all
 // router.use([auth]);
@@ -131,17 +126,13 @@ router.put("/users/change-password", authMiddleware, changePassword);
 //teacher
 
 //classSection for teacher
-router.get("/teacher/class-sections", authMiddleware, getTeacherSections);
-router.get(
-  "/teacher/class-sections/:classId/sessions",
-  authMiddleware,
-  getTeacherDetailSection,
-);
-router.get(
-  "/teacher/sessions/:sessionId",
-  authMiddleware,
-  getTeacherDetailSessions,
-);
+router.get("/teacher/class-sections",authMiddleware,getTeacherSections)
+router.get("/teacher/class-sections/:classId/sessions", authMiddleware, getTeacherDetailSection)
+router.get("/teacher/sessions/:sessionId", authMiddleware, getTeacherDetailSessions)
+
+//most difficult in Project =))
+router.get("/teacher/schedules/:scheduleId/details",startAttendanceSession) 
+router.post("/teacher/attendance/checkin",authMiddleware,checkin)
 //check already login
 router.get("/auth/account", authMiddleware, (req, res) => {
   return res.json({
