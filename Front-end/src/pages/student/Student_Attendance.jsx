@@ -123,7 +123,10 @@ const MyAttendance = () => {
               ))}
               {filteredData.length === 0 && (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>
+                  <td
+                    colSpan="4"
+                    style={{ textAlign: "center", padding: "20px" }}
+                  >
                     Không có dữ liệu
                   </td>
                 </tr>
