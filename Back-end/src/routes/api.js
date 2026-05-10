@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const uploadVideo = require("../middlewares/uploadMiddleware");
+const faceController = require("../controllers/student/UploadVideoController");
 const {
   login,
   register,
@@ -157,4 +159,11 @@ router.get("/schedule/week", authMiddleware, getWeekSchedule);
 
 router.get("/schedule/today", authMiddleware, getTodaySchedule);
 
+router.post(
+  "/upload-video",
+  authMiddleware,
+  uploadVideo.single("video"),
+  faceController.uploadFaceVideo,
+);
+router.get("/student/face-video", authMiddleware, faceController.getFaceVideo);
 module.exports = router;
