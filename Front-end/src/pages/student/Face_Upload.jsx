@@ -134,8 +134,8 @@ const FaceUpload = () => {
       });
 
       // validate size
-      if (file.size > 20 * 1024 * 1024) {
-        toast.error("Video phải nhỏ hơn 20MB");
+      if (file.size > 100 * 1024 * 1024) {
+        toast.error("Video phải nhỏ hơn 100MB");
         return;
       }
 
