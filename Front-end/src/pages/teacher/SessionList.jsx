@@ -115,7 +115,7 @@ const SessionList = () => {
                                     </td>
                                     <td style={{ padding: "15px" }}>
                                         <StatusBadge 
-                                            status={session.status === "completed" ? "completed" : "upcoming"} 
+                                            status={session.status} 
                                         />
                                     </td>
                                     <td style={{ padding: "15px", textAlign: "right" }}>

@@ -57,6 +57,7 @@ const { getMyAttendance } = require("../controllers/student/studentAttendanceCon
 const { getWeekSchedule } = require("../controllers/student/WeeklyScheduleController");
 const { getTodaySchedule } = require("../controllers/student/ScheduleTodayController");
 const { startAttendanceSession,checkin  } = require('../controllers/teacher/scheduleController');
+const { getStudentStatusPending, handleAction } = require("../controllers/admin/faceApprove");
 
 //apply middleware for all
 // router.use([auth]);
@@ -118,6 +119,10 @@ router.put("/students/:id", updateAccount);
 router.put("/teachers/:id", updateAccount);
 router.delete("/students/:id", deleteAccount);
 router.delete("/teachers/:id", deleteAccount);
+
+//face approve
+router.get("/face-approval",getStudentStatusPending);
+router.patch("/face-approval/:id",handleAction)
 
 //profile
 router.put("/users/profile", authMiddleware, updateProfile);

@@ -15,7 +15,6 @@ const MyAttendance = () => {
 
       const res = await instance.get("/student/attendance");
 
-      // ✅ FIX: Bọc an toàn, tránh lỗi khi Axios cấu hình interceptors trả thẳng về data
       const responsePayload = res.data !== undefined ? res.data : res;
       const data = responsePayload?.data;
 

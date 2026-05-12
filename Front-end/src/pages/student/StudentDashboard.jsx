@@ -10,9 +10,6 @@ const StudentDashboard = () => {
 
   const [error, setError] = useState(null);
 
-  // ==========================================
-  // FETCH DASHBOARD
-  // ==========================================
   const fetchDashboard = async () => {
     try {
       setLoading(true);
@@ -39,9 +36,6 @@ const StudentDashboard = () => {
     fetchDashboard();
   }, []);
 
-  // ==========================================
-  // LOADING
-  // ==========================================
   if (loading) {
     return (
       <div
@@ -57,9 +51,7 @@ const StudentDashboard = () => {
     );
   }
 
-  // ==========================================
-  // ERROR
-  // ==========================================
+
   if (error) {
     return (
       <div
@@ -74,9 +66,6 @@ const StudentDashboard = () => {
     );
   }
 
-  // ==========================================
-  // EMPTY
-  // ==========================================
   if (!data) {
     return (
       <div
@@ -98,9 +87,6 @@ const StudentDashboard = () => {
 
   const today = new Date().toLocaleDateString("vi-VN");
 
-  // ==========================================
-  // FORMAT STATUS
-  // ==========================================
   const getAttendanceText = (status) => {
     switch (status) {
       case "present":
@@ -114,18 +100,13 @@ const StudentDashboard = () => {
     }
   };
 
-  // ==========================================
-  // UI
-  // ==========================================
+
   return (
     <div
       style={{
         padding: 24,
       }}
     >
-      {/* ========================================== */}
-      {/* HEADER */}
-      {/* ========================================== */}
       <div
         style={{
           background: "linear-gradient(135deg, #4f46e5, #06b6d4)",
@@ -179,7 +160,6 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        {/* ATTENDANCE RATE */}
         <div
           style={{
             background: "rgba(255,255,255,0.15)",
@@ -211,9 +191,6 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* ========================================== */}
-      {/* STATS */}
-      {/* ========================================== */}
       <div
         className="stats-grid"
         style={{
@@ -245,9 +222,6 @@ const StudentDashboard = () => {
         />
       </div>
 
-      {/* ========================================== */}
-      {/* MAIN CONTENT */}
-      {/* ========================================== */}
       <div
         style={{
           display: "grid",
@@ -255,9 +229,6 @@ const StudentDashboard = () => {
           gap: 24,
         }}
       >
-        {/* ========================================== */}
-        {/* TODAY SCHEDULE */}
-        {/* ========================================== */}
         <div
           style={{
             background: "#fff",
@@ -267,7 +238,6 @@ const StudentDashboard = () => {
             boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
           }}
         >
-          {/* HEADER */}
           <div
             style={{
               padding: "18px 22px",
@@ -279,7 +249,6 @@ const StudentDashboard = () => {
             📋 Lịch học hôm nay
           </div>
 
-          {/* EMPTY */}
           {schedules.length === 0 && (
             <div
               style={{
@@ -291,7 +260,6 @@ const StudentDashboard = () => {
             </div>
           )}
 
-          {/* LIST */}
           {schedules.map((s) => (
             <div
               key={s.id}
@@ -305,7 +273,6 @@ const StudentDashboard = () => {
               }}
             >
               <div>
-                {/* SUBJECT */}
                 <div
                   style={{
                     fontWeight: 700,
@@ -318,7 +285,6 @@ const StudentDashboard = () => {
                     "Unknown"}
                 </div>
 
-                {/* INFO */}
                 <div
                   style={{
                     fontSize: 13,
@@ -336,14 +302,11 @@ const StudentDashboard = () => {
                 </div>
               </div>
 
-              <StatusBadge status="upcoming" />
+              <StatusBadge status={s.status} />
             </div>
           ))}
         </div>
 
-        {/* ========================================== */}
-        {/* ATTENDANCE */}
-        {/* ========================================== */}
         <div
           style={{
             background: "#fff",
@@ -353,7 +316,6 @@ const StudentDashboard = () => {
             boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
           }}
         >
-          {/* HEADER */}
           <div
             style={{
               padding: "18px 22px",
@@ -365,7 +327,6 @@ const StudentDashboard = () => {
             📊 Điểm danh gần đây
           </div>
 
-          {/* EMPTY */}
           {recentAttendance.length === 0 && (
             <div
               style={{
@@ -377,7 +338,6 @@ const StudentDashboard = () => {
             </div>
           )}
 
-          {/* LIST */}
           {recentAttendance.map((a) => (
             <div
               key={a.id}
