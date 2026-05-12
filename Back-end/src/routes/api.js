@@ -203,4 +203,9 @@ router.get(
   reportController.getFullReport,
 );
 router.get("/student/face-video", authMiddleware, faceController.getFaceVideo);
+
+const { get_Dashboard } = require("../controllers/teacher/DashboardController");
+
+router.get("/teacher/dashboard", authMiddleware, get_Dashboard);
+
 module.exports = router;
