@@ -168,4 +168,5 @@ CREATE INDEX idx_schedule_day ON schedules(day_of_week);
 -- VECTOR INDEX (AI)
 CREATE INDEX idx_embedding_vector 
 ON face_embeddings 
-USING ivfflat (embedding vector_cosine_ops);
+USING ivfflat (mean_embedding vector_cosine_ops)
+WITH (lists = 100);
