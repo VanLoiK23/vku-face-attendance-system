@@ -18,7 +18,7 @@ const navConfig = {
         { id: "classes", icon: "🥞", label: "Lớp học phần" },
         { id: "semester", icon: "🎓", label: "Học kỳ đào tạo" },
         { id: "schedule", icon: "📅", label: "Lịch học" },
-        { id: "face-approval", icon: "🤖", label: "Duyệt ảnh AI", badge: 2 },
+        { id: "face-approval", icon: "🤖", label: "Duyệt video SV", badge: 2 },
       ],
     },
     {

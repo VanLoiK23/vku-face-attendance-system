@@ -34,9 +34,6 @@ const getDashboard = async (userId) => {
     throw new Error("userId is required");
   }
 
-  // ======================================
-  // STUDENT
-  // ======================================
   const student = await Student.findOne({
     where: {
       user_id: userId,
@@ -79,9 +76,6 @@ const getDashboard = async (userId) => {
     throw new Error("Student not found");
   }
 
-  // ======================================
-  // ACTIVE SEMESTER
-  // ======================================
   const semester = await Semester.findOne({
     where: {
       is_active: true,
@@ -94,23 +88,9 @@ const getDashboard = async (userId) => {
 
   const currentWeek = calculateCurrentWeek(semester.start_date);
 
-  // ======================================
-  // CLASS IDS
-  // ======================================
   const classIds = student.classSections?.map((c) => c.id) || [];
 
-  // ======================================
-  // TODAY
-  // ======================================
   const now = new Date();
-
-  // JS:
-  // Sunday = 0
-  // Monday = 1
-
-  // SYSTEM:
-  // T2 = 2
-  // CN = 8
 
   let dayOfWeek = now.getDay();
 
@@ -120,9 +100,6 @@ const getDashboard = async (userId) => {
     dayOfWeek += 1;
   }
 
-  // ======================================
-  // TODAY SCHEDULES
-  // ======================================
   let schedules = [];
 
   if (classIds.length > 0) {

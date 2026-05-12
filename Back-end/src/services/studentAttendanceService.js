@@ -48,21 +48,34 @@ const studentAttendanceService = {
       late = 0;
 
     const attendanceHistory = records.map((record) => {
-      // ✅ FIX: Chuyển đổi object của Sequelize sang dạng JSON thuần để truy cập dữ liệu lồng nhau
       const r = record.get({ plain: true });
 
-      // ✅ FIX: Đưa về chữ thường để tránh lỗi viết hoa/thường (VD: "Present" vs "present")
       const statusStr = r.status ? r.status.toLowerCase() : "";
 
       if (statusStr === "present") present++;
       else if (statusStr === "absent") absent++;
       else if (statusStr === "late") late++;
 
+      const formatFullTime = (time) => {
+        if (!time || time === "-") return "-";
+      
+        const date = new Date(time);
+        
+        return new Intl.DateTimeFormat("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          timeZone: "Asia/Ho_Chi_Minh"
+        }).format(date).replace(",", " -"); 
+      };
+
       return {
         id: r.id,
         date: r.session?.sessionDate || r.session?.session_date || "-", 
         subject: r.session?.schedule?.classSection?.subject?.name || "Unknown",
-        time: r.checkin_time || "-",
+        time: formatFullTime(r.checkinTime) || "-",
         status: r.status,
       };
     });

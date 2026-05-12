@@ -221,7 +221,14 @@ const AttendancePage = () => {
       const result = await response.json();
 
       // NO DETECTION
+      // if (!result.detections || result.detections.length === 0) {
+      //   drawBoundingBoxes([]);
+      //   return;
+      // }
       if (!result.detections || result.detections.length === 0) {
+        predictionHistory.current = []; // Xóa lịch sử tên
+        stableDetections.current = [];  // Xóa lịch sử khung hình
+        confirmCounter.current = {};    // Reset bộ đếm xác nhận
         drawBoundingBoxes([]);
         return;
       }
@@ -235,6 +242,18 @@ const AttendancePage = () => {
 
       if (w < 50 || h < 50) {
         return;
+      }
+
+      // KIỂM TRA ĐỘ LỆCH VỊ TRÍ (Spatial Consistency)
+      // Nếu mặt mới xuất hiện cách mặt cũ hơn 100px -> Coi như người mới hoàn toàn
+      if (stableDetections.current.length > 0) {
+        const lastDet = stableDetections.current[stableDetections.current.length - 1];
+        const dist = Math.sqrt(Math.pow(x - lastDet.box[0], 2) + Math.pow(y - lastDet.box[1], 2));
+        
+        if (dist > 100) { 
+          predictionHistory.current = []; // Reset để người mới không bị dính tên người cũ
+          stableDetections.current = [];
+        }
       }
 
       // LABEL SMOOTHING

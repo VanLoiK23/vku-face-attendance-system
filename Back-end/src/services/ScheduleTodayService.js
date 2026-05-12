@@ -7,8 +7,8 @@ const Subject = require("../models/subject");
 const { Op } = require("sequelize");
 
 const getTodaySchedule = async (userId, role) => {
-  const now = new Date();
-
+  const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"}));
+  
   // Monday = 2 ... Sunday = 8 (suitable with format in DB)
   const dayOfWeekToday = now.getDay() === 0 ? 8 : now.getDay() + 1;
 

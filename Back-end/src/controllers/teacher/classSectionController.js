@@ -1,4 +1,6 @@
-const {attendanceSessionService} = require("../../services/attendanceSessionService");
+const {
+  attendanceSessionService,
+} = require("../../services/attendanceSessionService");
 const classSectionService = require("../../services/classSectionService");
 
 const calculateTotalSessions = (schedules) => {
@@ -88,26 +90,49 @@ const getTeacherDetailSection = async (req, res) => {
     const { classId } = req.params;
     const section = await classSectionService.getDetails(classId);
 
-    if (!section) {
-      return res.status(404).json({ message: "Không tìm thấy lớp học phần" });
-    }
+    if (!section) return res.status(404).json({ message: "Không tìm thấy lớp học phần" });
 
     const sectionData = section.toJSON();
     const totalStudentsInClass = sectionData.students.length;
     const sessions = [];
 
+    const nowVN = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+    const todayStr = nowVN.toLocaleDateString("en-CA"); // YYYY-MM-DD
+    const currentMinutes = nowVN.getHours() * 60 + nowVN.getMinutes();
+
+    const periodTimes = {
+      1: 450, 2: 510, 3: 570, 4: 630, 5: 690,
+      6: 780, 7: 840, 8: 900, 9: 960, 10: 1020
+    };
+
     sectionData.schedules.forEach((schedule) => {
       schedule.sessions.forEach((session) => {
-        const presentCount = session.records.filter(
-          (r) => r.status === "present"
-        ).length;
+        const presentCount = session.records.filter(r => r.status === "present").length;
 
-        const today = new Date().setHours(0, 0, 0, 0);
-        const sDate = new Date(session.sessionDate).setHours(0, 0, 0, 0);
+        const sessionDateVN = new Date(session.sessionDate).toLocaleDateString("en-CA");
+        
+        // Tính toán giờ bắt đầu/kết thúc dựa trên tiết học của schedule
+        const startMinutes = periodTimes[schedule.startPeriod];
+        const endMinutes = periodTimes[schedule.endPeriod] + 50; // Mỗi tiết 50p
 
         let currentStatus = "completed";
-        if (sDate > today) currentStatus = "scheduled";
-        if (sDate === today) currentStatus = "in-progress";
+
+        if (sessionDateVN > todayStr) {
+          // Ngày trong tương lai
+          currentStatus = "upcoming"; 
+        } else if (sessionDateVN === todayStr) {
+          // Nếu là ngày hôm nay, xét tiếp đến Tiết học
+          if (currentMinutes < startMinutes) {
+            currentStatus = "upcoming"; // Chưa đến giờ học
+          } else if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+            currentStatus = "ongoing"; // Đang trong giờ học
+          } else {
+            currentStatus = "completed"; // Đã qua giờ học của hôm nay
+          }
+        } else {
+          // Ngày trong quá khứ
+          currentStatus = "completed";
+        }
 
         sessions.push({
           id: session.id,
@@ -121,7 +146,12 @@ const getTeacherDetailSection = async (req, res) => {
       });
     });
 
+    // Sắp xếp theo ngày mới nhất lên đầu
     sessions.sort((a, b) => new Date(b.sessionDate) - new Date(a.sessionDate));
+
+    console.log(sectionData.schedules)
+    console.log(sessions)
+
 
     return res.status(200).json({
       id: sectionData.id,
@@ -160,7 +190,7 @@ const getTeacherDetailSessions = async (req, res) => {
       });
     });
 
-    students.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+    students.sort((a, b) => a.name.localeCompare(b.name, "vi"));
 
     return res.status(200).json({
       id: sessionData.id,
@@ -169,7 +199,7 @@ const getTeacherDetailSessions = async (req, res) => {
       classSectionName: sessionData.schedule.classSection.name,
       room: sessionData.schedule.room,
       period: `${sessionData.schedule.startPeriod}-${sessionData.schedule.endPeriod}`,
-      students
+      students,
     });
   } catch (error) {
     console.error("Lỗi format data:", error);
@@ -177,4 +207,8 @@ const getTeacherDetailSessions = async (req, res) => {
   }
 };
 
-module.exports = { getTeacherSections, getTeacherDetailSection,getTeacherDetailSessions };
+module.exports = {
+  getTeacherSections,
+  getTeacherDetailSection,
+  getTeacherDetailSessions,
+};

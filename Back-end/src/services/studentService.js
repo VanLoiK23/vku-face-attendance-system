@@ -30,61 +30,39 @@ const studentService = {
 
   getDetailInfoAllStudent: async () => {
     const sql = `
-      SELECT
-        s.id AS "studentId",
-        s.name,
-        s.student_code AS "studentCode",
+SELECT 
+    s.id AS "studentId",
+    s.name,
+    s.student_code AS "studentCode",
+    u.email,
+    u.id AS user_id,
+    co.name AS cohort,
+    co.id AS cohort_id,
 
-        u.email,
+    STRING_AGG(DISTINCT cs.name, ', ') AS "classSection",
 
-        u.id AS user_id,
+    STRING_AGG(DISTINCT sub.name, ', ') AS "subject",
+    s.face_status AS "faceStatus",
 
-        co.name AS cohort,
-
-        co.id AS cohort_id,
-
-        cs.name AS "classSection",
-
-        sub.name AS subject,
-
-        s.face_status AS "faceStatus",
-
-        ROUND(
-          COALESCE(
-            COUNT(ar.id) FILTER (WHERE ar.status = 'present') * 100.0
-            / NULLIF(COUNT(ar.id), 0),
+    ROUND(
+        COALESCE(
+            COUNT(ar.id) FILTER (WHERE ar.status = 'present') * 100.0 
+            / NULLIF(COUNT(ar.id), 0), 
             0
-          ),
-        2) AS "attendanceRate"
-
-      FROM students s
-
-      LEFT JOIN users u
-        ON u.id = s.user_id
-
-      LEFT JOIN cohorts co
-        ON co.id = s.cohort_id
-
-      LEFT JOIN enrollments e
-        ON e.student_id = s.id
-
-      LEFT JOIN class_sections cs
-        ON cs.id = e.class_section_id
-
-      LEFT JOIN subjects sub
-        ON sub.id = cs.subject_id
-
-      LEFT JOIN attendance_records ar
-        ON ar.student_id = s.id
-
-      GROUP BY
-        s.id,
-        u.id,
-        co.id,
-        cs.id,
-        sub.id
-
-      ORDER BY s.id;
+        ), 2
+    ) AS "attendanceRate"
+FROM students s
+LEFT JOIN users u ON u.id = s.user_id
+LEFT JOIN cohorts co ON co.id = s.cohort_id
+LEFT JOIN enrollments e ON e.student_id = s.id
+LEFT JOIN class_sections cs ON cs.id = e.class_section_id
+LEFT JOIN subjects sub ON sub.id = cs.subject_id
+LEFT JOIN attendance_records ar ON ar.student_id = s.id
+GROUP BY 
+    s.id, 
+    u.id, 
+    co.id 
+ORDER BY s.id;
     `;
 
     try {
@@ -119,8 +97,8 @@ const studentService = {
   getByUserId: async (userId) => {
     return await Student.findOne({
       where: {
-        user_id: userId
-      }
+        user_id: userId,
+      },
     });
   },
 
@@ -148,13 +126,10 @@ const studentService = {
   },
 
   update: async (id, updateData, t) => {
-    return await Student.update(
-      updateData,
-      {
-        where: { id },
-        transaction: t 
-      }
-    );
+    return await Student.update(updateData, {
+      where: { id },
+      transaction: t,
+    });
   },
 
   delete: async (id) => {
@@ -162,6 +137,24 @@ const studentService = {
       where: { id },
     });
   },
+
+  getAllPendingStudents: async (page, limit) => {
+    const offset = (page - 1) * limit;
+
+    return await Student.findAndCountAll({
+      where: { faceStatus: "pending" },
+      limit: limit,
+      offset: offset,
+      order: [["uploaded_at", "DESC"]],
+    });// return về rows(ds sinh viên đã phân trang) and count(tổng số sinh viên) 
+  },
+  getFaceApprovalStats: async () => {
+    const pending = await Student.count({ where: { faceStatus: "pending" } });
+    const confirm = await Student.count({ where: { faceStatus: "confirm" } });
+    const reject = await Student.count({ where: { faceStatus: "reject" } });
+
+    return { pending, confirm, reject };
+  },
 };
 
-module.exports =  studentService ;
+module.exports = studentService;

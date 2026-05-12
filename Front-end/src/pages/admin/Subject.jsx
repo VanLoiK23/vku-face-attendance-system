@@ -233,15 +233,38 @@ const SubjectsPage = () => {
                   position: "absolute",
                   top: 15,
                   right: 15,
-                  background: "rgba(79, 70, 229, 0.1)",
-                  color: "#4F46E5",
-                  padding: "4px 12px",
-                  borderRadius: 20,
-                  fontSize: 12,
-                  fontWeight: 700,
+                  display: "flex",
+                  gap: 8,
                 }}
               >
-                {s.credits} Tín chỉ
+                <div
+                  style={{
+                    background: "rgba(79, 70, 229, 0.1)",
+                    color: "#4F46E5",
+                    padding: "4px 12px",
+                    borderRadius: 20,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                >
+                  {s.credits} Tín chỉ
+                </div>
+
+                <div
+                  style={{
+                    background:
+                    (s.sections?.length || 0) > 0
+                        ? "rgba(16, 185, 129, 0.1)"
+                        : "rgba(107, 114, 128, 0.1)",
+                    color: (s.sections?.length || 0) > 0 ? "#10B981" : "#6B7280",
+                    padding: "4px 12px",
+                    borderRadius: 20,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                >
+                  {s.sections?.length || 0} Lớp
+                </div>
               </div>
 
               <div style={{ padding: 25 }}>
