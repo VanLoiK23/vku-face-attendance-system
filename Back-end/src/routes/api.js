@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const uploadVideo = require("../middlewares/uploadMiddleware");
 const faceController = require("../controllers/student/UploadVideoController");
+const dashboardController = require("../controllers/admin/DashboardController");
 const {
   login,
   register,
@@ -161,5 +162,36 @@ router.post(
   uploadVideo.single("video"),
   faceController.uploadFaceVideo,
 );
+
+//dashboard
+router.get(
+  "/admin/dashboard",
+  authMiddleware,
+  dashboardController.getDashboard,
+);
+
+router.get(
+  "/admin/students",
+  authMiddleware,
+  dashboardController.getAllStudents,
+);
+
+router.get(
+  "/admin/students/:id",
+  authMiddleware,
+  dashboardController.getStudentDetail,
+);
+//report
+const reportController = require("../controllers/admin/ReportsController");
+
+router.get("/admin/reports", authMiddleware, reportController.getReports);
+router.get(
+  "/admin/reports/full",
+  authMiddleware,
+  reportController.getFullReport,
+);
 router.get("/student/face-video", authMiddleware, faceController.getFaceVideo);
+const { get_Dashboard } = require("../controllers/teacher/DashboardController");
+
+router.get("/teacher/dashboard", authMiddleware, get_Dashboard);
 module.exports = router;
